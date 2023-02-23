@@ -154,14 +154,11 @@ export class AppComponent implements OnInit {
         var audio = user.audioTrack;
         audio.play();
       }
-        console.log("subscribe success",this.users, mediaType);
     });
     this.agoraEngine.on("user-unpublished", async (user:any, mediaType:any) =>
     {
       this.users = this.users.filter(x=> x != user);
       this.agentsCalls();
-      console.log(this.users)
-      //this.screenMode = false;
     });  
   }
   screenShare(uid?:any){
@@ -272,11 +269,8 @@ export class AppComponent implements OnInit {
       this.message = '';
     }
   }
-  
-  videoElement:any
   removeParticipant(){
     this.socketService.callDicconnected(this.userSid)
-    this.room.disconnect();
     this.muteAudio();
     this.muteVideo();
     this.chatButton = false;
@@ -284,8 +278,6 @@ export class AppComponent implements OnInit {
   scrollToBottom(): void {
     try {
       this.scrollBottom.nativeElement.scrollTop = this.scrollBottom.nativeElement.scrollHeight + 400;
-      console.log(
-        this.scrollBottom.nativeElement.scrollTop = this.scrollBottom.nativeElement.scrollHeight,this.scrollBottom.nativeElement.scrollHeight + 400)
     } catch(err) { }                 
   }
   timer() {
