@@ -31,6 +31,8 @@ const remoteMediaContainer = document.querySelector('#remote-media-container') a
 export class AppComponent implements OnInit {
   @ViewChild ('localMediaContainer') localMediaContainer:any;
   @ViewChild ('remoteMediaContainer') remoteMediaContainer:any;
+  @ViewChild ('remoteMediaContainer1') remoteMediaContainer1:any;
+  @ViewChild ('remoteMediaContainer2') remoteMediaContainer2:any;
   @ViewChild ('remoteScreenContainer') remoteScreenContainer:any;
   
   @ViewChild('scrollBottom') scrollBottom: any;
@@ -54,43 +56,13 @@ export class AppComponent implements OnInit {
     private renderer: Renderer2,
     private toastr: ToastrService,
     private el:ElementRef) { }
-  ngOnInit(): void {
-    (this.el.nativeElement as HTMLElement).style.setProperty('--vh', window.innerHeight.toString()+"px");
-    this.toastr.overlayContainer = this.toastContainer;
-    this.socketService.connectSocket()
-    this.socketService.CallRequestAccepted.subscribe((doc:any) => {
-      this.loading = false;
-      this.agentName = doc.agentName
-      this.userSid = doc.userSid;
-      if(doc.avatar && doc.avatar != ""){
-        this.avatar = doc.avatar;
-      }
-      this.agentImage = doc.image;
-      this.socketService.userCallAccept(doc);
-      this.onJoinClick()
-    });
-    this.twilioService.getAgentImage().subscribe((doc:any) => {
-      this.agentImage = doc.img;
-    });
-    this.socketService.messageReceived.subscribe((doc:any) => {
-      const payload ={
-        'msg':doc.msg,
-        'agentName':doc.agentName? doc.agentName:'Test'
-      }
-      this.messages.push(payload)
-      this.scrollToBottom();
-    });
-    this.socketService.agentDisconnected.subscribe((doc:any) => {
-      this.messages = [];
-      this.toastr.success('Call disconnected or agent leaved')
-    });
- 
-  }
   conversationToken:any;
   conversationClient:any;
   localParticipant:any;
   conversation:any;
   room:any;
+  localAudioTracks:any;
+  localVideoTracks:any;
   channelParameters =
   {
       // A variable to hold a local audio track.
@@ -110,6 +82,7 @@ export class AppComponent implements OnInit {
   roomName:any;
   message:any;
   agentCount =0;
+  users:any[] =[];
   videos:any[] = [];
   showButton = false;
   messages:any[]=[];
@@ -122,52 +95,103 @@ export class AppComponent implements OnInit {
   public audioPublished = false;
   UserlocalVideoTrack:any;
   timerInterval: any;
-
-  scrollToBottom(): void {
-    try {
-      this.scrollBottom.nativeElement.scrollTop = this.scrollBottom.nativeElement.scrollHeight + 400;
-      console.log(
-        this.scrollBottom.nativeElement.scrollTop = this.scrollBottom.nativeElement.scrollHeight,this.scrollBottom.nativeElement.scrollHeight + 400)
-    } catch(err) { }                 
-  }
-  timer() {
-    // let minute = 1;
-    let seconds: number = 60;
-    this.timerInterval = setInterval(() => {
-      seconds--;
-      if (seconds == 0) {
-        clearInterval(this.timerInterval);
-        if(this.loading){
-          this.toastr.error('No agents availble right now please try again in a while')
-          this.loading = false;
-          this.showButton = true;
-        }
+  ngOnInit(): void {
+    (this.el.nativeElement as HTMLElement).style.setProperty('--vh', window.innerHeight.toString()+"px");
+    this.toastr.overlayContainer = this.toastContainer;
+    this.socketService.connectSocket()
+    this.socketService.screenShareStarted.subscribe((doc:any) => {
+      this.screenMode = true;
+      this.screenShare(doc.uid)
+    });
+    this.socketService.screenShareStoped.subscribe((doc:any) => {
+      this.screenMode = false;
+      this.agentsCalls();
+    });
+    this.socketService.CallRequestAccepted.subscribe((doc:any) => {
+      this.loading = false;
+      this.agentName = doc.agentName
+      this.userSid = doc.userSid;
+      if(doc.avatar && doc.avatar != ""){
+        this.avatar = doc.avatar;
       }
-    }, 1000);
+      this.agentImage = doc.image;
+      this.socketService.userCallAccept(doc);
+    });
+    this.twilioService.getAgentImage().subscribe((doc:any) => {
+      this.agentImage = doc.img;
+    });
+    this.socketService.messageReceived.subscribe((doc:any) => {
+      const payload ={
+        'msg':doc.msg,
+        'agentName':doc.agentName? doc.agentName:'Test'
+      }
+      this.messages.push(payload)
+      this.scrollToBottom();
+    });
+    this.socketService.agentDisconnected.subscribe((doc:any) => {
+      this.messages = [];
+      this.toastr.success('Call disconnected or agent leaved')
+    });
+ 
   }
   payload:any;
+  agoraEngine:any
   async initAgoraClient(){
-    const agoraEngine = AgoraRTC.createClient({ mode: "rtc", codec: "vp8" });
-    await agoraEngine.join(this.options.appId, this.options.channel,this.options.token, this.options.uid); 
-    agoraEngine.on("user-published", async (user:any, mediaType:any) =>
+    this.agoraEngine = AgoraRTC.createClient({ mode: "rtc", codec: "vp8" });
+    await this.agoraEngine.join(this.options.appId, this.options.channel,this.options.token, this.options.uid); 
+    this.agoraEngine.on("user-published", async (user:any, mediaType:any) =>
     {
-      this.screenMode = true;
-        await agoraEngine.subscribe(user, mediaType);
-        if (mediaType === "video") {
-          const remoteVideoTrack = user.videoTrack;
-          
-          this.remoteScreenContainer.nativeElement.style.width = "100%";
-          this.remoteScreenContainer.nativeElement.style.height = "50%";
-          this.remoteScreenContainer.nativeElement.style.position = 'absolute';
-          this.remoteScreenContainer.nativeElement.style.left = '0px';
-          remoteVideoTrack.play(this.remoteScreenContainer.nativeElement);
+      await this.agoraEngine.subscribe(user, mediaType);
+      if (mediaType === "video") {
+        if(user._videoTrack){
+          this.users.push(user)
         }
-        console.log("subscribe success",user, mediaType);
+        
+      this.agentsCalls();
+      }
+      if (mediaType == "audio")
+      {
+        var audio = user.audioTrack;
+        audio.play();
+      }
+        console.log("subscribe success",this.users, mediaType);
     });
-    agoraEngine.on("user-unpublished", async (user:any, mediaType:any) =>
+    this.agoraEngine.on("user-unpublished", async (user:any, mediaType:any) =>
     {
-      this.screenMode = false;
+      this.users = this.users.filter(x=> x != user);
+      this.agentsCalls();
+      console.log(this.users)
+      //this.screenMode = false;
     });  
+  }
+  screenShare(uid?:any){
+    const user = this.users.findIndex(x=>x.uid == uid)
+    this.remoteScreenContainer.nativeElement.style.width = "96%";
+    this.remoteScreenContainer.nativeElement.style.height = "50%";
+    this.remoteScreenContainer.nativeElement.style.position = 'absolute';
+    this.remoteScreenContainer.nativeElement.style.top = '25%';
+    this.remoteScreenContainer.nativeElement.style.left = '2%';
+    this.users[user].videoTrack.play(this.remoteScreenContainer.nativeElement);
+  }
+  agentsCalls(){
+    if(this.users.length == 1){
+      this.remoteMediaContainer1.nativeElement.style.width = "100%";
+      this.remoteMediaContainer1.nativeElement.style.height = "100%";
+      this.remoteMediaContainer1.nativeElement.style.position = 'absolute';
+      this.remoteMediaContainer1.nativeElement.style.left = '0px';
+      this.users[0].videoTrack.play(this.remoteMediaContainer1.nativeElement);
+    }
+    else if(this.users.length == 2){
+      
+      this.remoteMediaContainer2.nativeElement.style.height = "50%";
+      this.remoteMediaContainer2.nativeElement.style.width = "100%";
+      this.remoteMediaContainer2.nativeElement.style.height = "50%";
+      this.remoteMediaContainer2.nativeElement.style.position = 'absolute';
+      this.remoteMediaContainer2.nativeElement.style.left = '0px';
+      this.remoteMediaContainer2.nativeElement.style.top = '50%';
+      this.users[1].videoTrack.play(this.remoteMediaContainer2.nativeElement);
+      this.remoteMediaContainer1.nativeElement.style.height = "50%";
+    }
   }
   getAccessToken(){
     this.chatButton = true;
@@ -178,7 +202,7 @@ export class AppComponent implements OnInit {
     
     this.twilioService.getAgoraToken(this.options.uid).subscribe((data:any)=>{
       this.options.channel = data.channelName;
-      this.options.token = data.token;
+      this.options.token = data.tokenA;
       this.initAgoraClient();
 
     })
@@ -192,9 +216,36 @@ export class AppComponent implements OnInit {
       }
       this.timer();
       this.initChatClient();
-      this.onJoinClick();
       this.socketService.callRequest(this.payload);
     })
+  }
+  async unMuteVideo(){
+    this.localVideoTracks = await AgoraRTC.createCameraVideoTrack();
+    this.localMediaContainer.nativeElement.style.width = "115px";
+    this.localMediaContainer.nativeElement.style.height = "115px";
+    this.localMediaContainer.nativeElement.style.position = 'absolute';
+    this.localMediaContainer.nativeElement.style.top = '50px';
+    this.localMediaContainer.nativeElement.style.left = '20px';
+    this.localMediaContainer.nativeElement.style['z-index'] = '1';
+    await this.agoraEngine.publish([this.localVideoTracks]);
+    this.localVideoTracks.play(this.localMediaContainer.nativeElement);
+    this.videoMode = true;
+  }
+
+  async muteVideo(){
+    this.localVideoTracks.close();
+    await this.agoraEngine.unpublish([this.localVideoTracks]);
+    this.videoMode = false;
+  }
+  async muteAudio(){
+    this.audioMode = false;
+    this.localAudioTracks.close();
+    await this.agoraEngine.unpublish([this.localAudioTracks]);
+  }
+  async unMuteAudio(){
+    this.audioMode = true;
+    this.localAudioTracks = await AgoraRTC.createMicrophoneAudioTrack(); 
+    await this.agoraEngine.publish([ this.localAudioTracks]);
   }
 
   callRequest(){
@@ -222,209 +273,34 @@ export class AppComponent implements OnInit {
     }
   }
   
-
-
-
-
-  manageTracksForRemoteParticipant(participant: RemoteParticipant) {
-    // Handle tracks that this participant has already published.
-    this.attachAttachableTracksForRemoteParticipant(participant);
-
-    // Handles tracks that this participant eventually publishes.
-    participant.on('trackSubscribed', this.onTrackSubscribed);
-    participant.on('trackUnsubscribed', this.onTrackUnsubscribed);
-  }
-
-  attachAttachableTracksForRemoteParticipant(participant: RemoteParticipant) {
-    participant.tracks.forEach((publication:any) => {
-        if (!publication.isSubscribed)
-            return;
-
-        if (!this.trackExistsAndIsAttachable(publication.track))
-            return;
-
-        this.attachTrack(publication.track);
-    });
-  }
-
-  onTrackSubscribed(track: RemoteTrack) {
-    if (!this.trackExistsAndIsAttachable(track))
-        return;
-
-    this.attachTrack(track);
-  }
-  attachTrack(track: RemoteAudioTrack | RemoteVideoTrack, participant?:any) {
-    const videoElement = track.attach();
-    this.renderer.setStyle(videoElement, 'height', '100%');
-    this.renderer.setStyle(videoElement, 'width', '100%');
-    this.renderer.setStyle(videoElement, 'position', 'absolute');
-    this.renderer.setStyle(videoElement, 'object-fit', 'cover');
-    this.renderer.setStyle(videoElement, 'z-index', '0');
-    this.renderer.setStyle(videoElement, 'left', '0px');
-    this.renderer.appendChild(this.remoteMediaContainer.nativeElement, videoElement);
-    this.videos.push({
-      agentName:this.agentName,
-      participant:participant,
-      video:videoElement
-    })
-    if(this.remoteMediaContainer.nativeElement.childNodes.length == 4){
-      this.renderer.setStyle(this.remoteMediaContainer.nativeElement.childNodes[0], 'height', '50%');
-      this.renderer.setStyle(this.remoteMediaContainer.nativeElement.childNodes[1], 'height', '50%');
-      this.renderer.setStyle(this.remoteMediaContainer.nativeElement.childNodes[2], 'height', '50%');
-      this.renderer.setStyle(this.remoteMediaContainer.nativeElement.childNodes[3], 'height', '50%');
-      this.renderer.setStyle(this.remoteMediaContainer.nativeElement.childNodes[2], 'top', '50%');
-      this.renderer.setStyle(this.remoteMediaContainer.nativeElement.childNodes[3], 'top', '50%');
-    }
-  }
-  onTrackUnsubscribed(track: RemoteTrack) {
-    console.log("participantLeave")
-    if (this.trackExistsAndIsAttachable(track))
-        track.detach().forEach(element => element.remove());
-  }
-
-  trackExistsAndIsAttachable(track?: any): track is RemoteAudioTrack | RemoteVideoTrack {
-    return !!track && (
-        (track as RemoteAudioTrack).attach !== undefined ||
-        (track as RemoteVideoTrack).attach !== undefined
-    );
-  }
-
-  async onJoinClick() {
-     await connect(this.videoToken, {
-        name: this.roomName,
-        audio: false,
-        video: false
-    }).then(room => {
-      console.log(`Successfully joined a Room: ${room.localParticipant}`);
-      this.room = room;
-      console.log(this.room);
-
-      room.participants.forEach(
-        participant => this.manageTracksForRemoteParticipant(participant)
-      );
-      this.room.on('disconnected', (room:any) => {
-        room.localParticipant.tracks.forEach((publication:any) => {
-          const attachedElements = publication.track.detach();
-          attachedElements.forEach((element:any) => element.remove());
-        });
-      });
-    
-      this.room.on('participantConnected', (participant:any) => {
-        //this.loading = false;
-        console.log(`A remote Participant connected: ${participant}`, participant.tracks);
-        this.toastr.success('Agent received the call ')
-        this.agentCount++
-        participant.tracks.forEach((publication:any) => {
-          if (publication.isSubscribed) {
-            const track:any = publication.track;
-            this.attachTrack(track)
-          }
-        });
-
-        participant.on('trackSubscribed', (track:any) => {
-          console.log("called")
-          this.attachTrack(track,participant)
-        });
-      });
-      this.room.on('participantDisconnected', (participant:any) => {
-        //this.loading = false;
-        this.videos.forEach((element:any)=>{
-          if(participant == element.participant){
-            this.toastr.error('Agent Disconnected or Left')
-            this.remoteMediaContainer.nativeElement.removeChild(element.video)
-            if(this.remoteMediaContainer.nativeElement.childNodes.length == 2){
-              this.renderer.setStyle(this.remoteMediaContainer.nativeElement.childNodes[0], 'height', '100%');
-              this.renderer.setStyle(this.remoteMediaContainer.nativeElement.childNodes[0], 'top', '0px');
-              this.renderer.setStyle(this.remoteMediaContainer.nativeElement.childNodes[1], 'height', '100%');
-              this.renderer.setStyle(this.remoteMediaContainer.nativeElement.childNodes[1], 'top', '0px');
-            }
-            else if(this.remoteMediaContainer.nativeElement.childNodes.length == 0){
-              this.removeParticipant();
-            }
-          }
-          else{
-            this.agentName = element.agentName;
-          }
-        })
-      });
-    }, error => {
-      console.error(`Unable to connect to Room: ${error.message}`);
-    });
-  }
   videoElement:any
-  async localVideoTrack(localVideoTrack:any) {
-    // Provides a camera preview window.
-    
-    this.videoElement = localVideoTrack.attach();
-    this.renderer.setStyle(this.videoElement, 'height', '115px');
-    this.renderer.setStyle(this.videoElement, 'width', '115px');
-    this.renderer.setStyle(this.videoElement, 'position', 'absolute');
-    this.renderer.setStyle(this.videoElement, 'left', '20px');
-    this.renderer.setStyle(this.videoElement, 'top', '40px');
-    this.renderer.setStyle(this.videoElement, 'z-index', '1');
-    this.renderer.appendChild(this.localMediaContainer.nativeElement, this.videoElement)
-  }
-
-  muteVideo(){
-    this.videoMode = false;
-    this.room.localParticipant.videoTracks.forEach((publication:any) => {
-      publication.track.disable();
-      publication.unpublish();
-    });
-    this.renderer.removeChild(this.localMediaContainer.nativeElement, this.videoElement)
-  }
-
-  muteAudio(){
-    this.audioMode = false;
-    this.room.localParticipant.audioTracks.forEach((publication:any) => {
-      publication.track.disable();
-    });
-  }
-
-  async unMuteVideo(){
-
-    this.videoMode = true;
-    let localVideoTrack = await createLocalVideoTrack();
-    this.localVideoTrack(localVideoTrack);
-
-    if(this.videoPublished === false) {
-
-      console.log("going to publish video")
-      this.room.localParticipant.publishTrack(localVideoTrack, {
-        priority: 'high'
-      })
-      this.videoPublished = true;
-    }
-    else {
-      this.room.localParticipant.videoTracks.forEach((track:any) => {
-        track.track.enable();
-      });
-    }
-    
-  }
-
-  async unMuteAudio(){
-    this.audioMode = true;
-    
-    if(this.audioPublished === false) {
-      let localAudioTrack = await createLocalAudioTrack({});
-      this.room.localParticipant.publishTrack(localAudioTrack, {
-        priority: 'high'
-      })
-      this.audioPublished = true;
-    }
-    else {
-      this.room.localParticipant.audioTracks.forEach((publication:any) => {
-        publication.track.enable();
-      });
-    }
-  }
-
   removeParticipant(){
     this.socketService.callDicconnected(this.userSid)
     this.room.disconnect();
     this.muteAudio();
     this.muteVideo();
     this.chatButton = false;
+  }
+  scrollToBottom(): void {
+    try {
+      this.scrollBottom.nativeElement.scrollTop = this.scrollBottom.nativeElement.scrollHeight + 400;
+      console.log(
+        this.scrollBottom.nativeElement.scrollTop = this.scrollBottom.nativeElement.scrollHeight,this.scrollBottom.nativeElement.scrollHeight + 400)
+    } catch(err) { }                 
+  }
+  timer() {
+    // let minute = 1;
+    let seconds: number = 60;
+    this.timerInterval = setInterval(() => {
+      seconds--;
+      if (seconds == 0) {
+        clearInterval(this.timerInterval);
+        if(this.loading){
+          this.toastr.error('No agents availble right now please try again in a while')
+          this.loading = false;
+          this.showButton = true;
+        }
+      }
+    }, 1000);
   }
 }

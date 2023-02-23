@@ -16,9 +16,11 @@ export class TwilioService {
   }
   getAgoraToken(userName:number) {
     const obj ={
-      "agentName": userName,
+      "userUid": userName,
+      "channelName": "6401677041637668",
+      "role": 0
     }
-    return this.http.post('http://134.122.28.251:3001/agentRoutes/agoraToken',obj);
+    return this.http.post('https://viewpro.com/api/agentRoutes/agoraToken',obj);
   }
 
   getAgentImage() {

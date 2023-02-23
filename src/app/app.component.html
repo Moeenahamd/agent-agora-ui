@@ -3,8 +3,6 @@
 	<label class="chat-btn" for="check" (click)="getAccessToken()">
 		<img  src="../assets/instagram.gif" style="border-radius: 50%;">
 	</label>
-<ng-template #customLoadingTemplate>
-</ng-template>
 	<div *ngIf="chatButton" class="wrapper shadow-lg" #toastContainer>
     <div class="bg-image" [style.background-image]="agentImage"></div>
     <div *ngIf="loading" class="loader-content">
@@ -21,11 +19,12 @@
     
     <div class="media-container">
        <div #localMediaContainer></div>  
-      <div [hidden]="screenMode" #remoteMediaContainer></div>
       <div [hidden]="!screenMode"  #remoteScreenContainer></div>
+      <div [hidden]="screenMode" #remoteMediaContainer1></div>
+      <div [hidden]="screenMode" #remoteMediaContainer2></div>
     </div>
         
-			<div  style="z-index: 4;">
+			<div  style="z-index: 4;" *ngIf="!screenMode">
         <div style="position: relative;" class="top-bar">
           <i style="font-size:30px;color:white;position: absolute; top:5px;left:17px;" class="bi bi-person-circle"></i>
           <span style="font-size:18px;color:white;position: absolute; top:14px;left:58px;">{{agentName}}</span>
@@ -64,10 +63,4 @@
         </div>
 				
 			</div>
-      
-			<!-- <ngx-loading
-        [show]="loading"
-        [config]="{ backdropBorderRadius: '3px' }"
-        [template]="customLoadingTemplate"
-      ></ngx-loading> -->
 	</div>

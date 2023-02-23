@@ -6,6 +6,8 @@ import { Socket } from 'ngx-socket-io';
 export class SocketService {
   id:any;
   CallRequestAccepted = this.socket.fromEvent('CallRequestAccepted');
+  screenShareStarted = this.socket.fromEvent('screenShareStarted');
+  screenShareStoped = this.socket.fromEvent('screenShareStoped');
   messageReceived = this.socket.fromEvent('agentMessage');
   agentDisconnected = this.socket.fromEvent('agentDisconnected');
   constructor(private socket: Socket) { }
