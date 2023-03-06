@@ -57,7 +57,6 @@ export class AppComponent implements OnInit {
     private toastr: ToastrService,
     private el:ElementRef) { }
   conversationToken:any;
-  conversationClient:any;
   localParticipant:any;
   conversation:any;
   room:any;
@@ -107,7 +106,7 @@ export class AppComponent implements OnInit {
       this.screenMode = false;
       this.agentsCalls();
     });
-    this.socketService.CallRequestAccepted.subscribe((doc:any) => {
+    this.socketService.agentAcceptedCall.subscribe((doc:any) => {
       this.loading = false;
       this.agentName = doc.agentName
       this.userSid = doc.userSid;
@@ -122,7 +121,7 @@ export class AppComponent implements OnInit {
     });
     this.socketService.messageReceived.subscribe((doc:any) => {
       const payload ={
-        'msg':doc.msg,
+        'message':doc.message,
         'agentName':doc.agentName? doc.agentName:'Test'
       }
       this.messages.push(payload)
@@ -197,7 +196,7 @@ export class AppComponent implements OnInit {
     const socketObj=this.socketService.getSocket();
     this.localParticipant = socketObj.ioSocket.id;
     
-    this.twilioService.getAgoraToken(this.options.uid).subscribe((data:any)=>{
+    this.twilioService.getAgoraToken(this.options.uid, this.localParticipant).subscribe((data:any)=>{
       this.options.channel = data.channelName;
       this.options.token = data.tokenA;
       this.initAgoraClient();
@@ -212,8 +211,7 @@ export class AppComponent implements OnInit {
         conversationSID: data.conversationRoom.sid
       }
       this.timer();
-      this.initChatClient();
-      this.socketService.callRequest(this.payload);
+      this.socketService.callRequestToAgent(this.payload);
     })
   }
   async unMuteVideo(){
@@ -246,13 +244,9 @@ export class AppComponent implements OnInit {
   }
 
   callRequest(){
-    this.socketService.callRequest(this.payload);
+    this.socketService.callRequestToAgent(this.payload);
     this.loading = true;
     this.showButton = false;
-  }
-
-  async initChatClient(){
-    this.conversationClient = await new Client(this.conversationToken);
   }
 
   async sendMessage(){
@@ -261,9 +255,9 @@ export class AppComponent implements OnInit {
         "roomName":this.userSid,
         "msg":this.message
       }
-      this.socketService.userSendMessage(payload)
+      this.socketService.sendMessage(payload)
       this.messages.push({
-        "msg":this.message
+        "message":this.message
       })
       this.scrollToBottom();
       this.message = '';
@@ -271,8 +265,8 @@ export class AppComponent implements OnInit {
   }
   removeParticipant(){
     this.socketService.callDicconnected(this.userSid)
-    this.muteAudio();
-    this.muteVideo();
+    this.agoraEngine.leave();
+    this.users = [];
     this.chatButton = false;
   }
   scrollToBottom(): void {

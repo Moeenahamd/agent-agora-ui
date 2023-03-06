@@ -5,7 +5,7 @@ import { Socket } from 'ngx-socket-io';
 })
 export class SocketService {
   id:any;
-  CallRequestAccepted = this.socket.fromEvent('CallRequestAccepted');
+  agentAcceptedCall = this.socket.fromEvent('CallRequestAccepted');
   screenShareStarted = this.socket.fromEvent('screenShareStarted');
   screenShareStoped = this.socket.fromEvent('screenShareStoped');
   messageReceived = this.socket.fromEvent('agentMessage');
@@ -15,7 +15,7 @@ export class SocketService {
     await this.socket.emit('Connected');
   }
 
-  callRequest(obj:any){
+  callRequestToAgent(obj:any){
     this.socket.emit('CallRequest',obj);
   }
 
@@ -23,7 +23,7 @@ export class SocketService {
     this.socket.emit('UserCallAccept',obj);
   }
 
-  userSendMessage(obj:any){
+  sendMessage(obj:any){
     this.socket.emit('userSendMessage',obj);
   }
   callDicconnected(obj:any){
