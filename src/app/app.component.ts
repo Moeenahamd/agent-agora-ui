@@ -1,28 +1,10 @@
 import { AfterViewInit, Component, ElementRef, OnInit, Renderer2, ViewChild } from '@angular/core';
 import { TwilioService } from './services/twilio.service';
-import { Client } from '@twilio/conversations';
-import * as Video from 'twilio-video';
 import { UUID } from 'angular2-uuid';
 import { SocketService } from './services/socket.service';
 import AgoraRTC, { IAgoraRTCClient, LiveStreamingTranscodingConfig, ICameraVideoTrack, IMicrophoneAudioTrack, ScreenVideoTrackInitConfig, VideoEncoderConfiguration, AREAS, IRemoteAudioTrack, ClientRole } from "agora-rtc-sdk-ng"
-
-import { 
-  connect,
-  createLocalVideoTrack,
-  createLocalAudioTrack,
-  RemoteAudioTrack, 
-  RemoteParticipant, 
-  RemoteTrack, 
-  RemoteVideoTrack,
-  Room
-} from 'twilio-video';
 import { ToastContainerDirective, ToastrService } from 'ngx-toastr';
-
-
-const joinButton = document.querySelector('#join-button') as HTMLButtonElement;
-const remoteMediaContainer = document.querySelector('#remote-media-container') as HTMLDivElement;
-//const localMediaContainer = document.querySelector('#local-media-container') as HTMLDivElement;
-
+import { SpeechRecognitionService } from './services/speech-recognition.service';
 @Component({
   selector: 'app-root',
   templateUrl: './app.component.html',
@@ -30,7 +12,6 @@ const remoteMediaContainer = document.querySelector('#remote-media-container') a
 })
 export class AppComponent implements OnInit {
   @ViewChild ('localMediaContainer') localMediaContainer:any;
-  @ViewChild ('remoteMediaContainer') remoteMediaContainer:any;
   @ViewChild ('remoteMediaContainer1') remoteMediaContainer1:any;
   @ViewChild ('remoteMediaContainer2') remoteMediaContainer2:any;
   @ViewChild ('remoteScreenContainer') remoteScreenContainer:any;
@@ -53,9 +34,10 @@ export class AppComponent implements OnInit {
   constructor(
     private twilioService: TwilioService,
     private socketService: SocketService,
-    private renderer: Renderer2,
+    private service : SpeechRecognitionService,
     private toastr: ToastrService,
-    private el:ElementRef) { }
+    private el:ElementRef) { 
+    }
   conversationToken:any;
   localParticipant:any;
   conversation:any;
@@ -97,6 +79,7 @@ export class AppComponent implements OnInit {
   ngOnInit(): void {
     (this.el.nativeElement as HTMLElement).style.setProperty('--vh', window.innerHeight.toString()+"px");
     this.toastr.overlayContainer = this.toastContainer;
+    this.service.start();
     this.socketService.connectSocket()
     this.socketService.screenShareStarted.subscribe((doc:any) => {
       this.screenMode = true;
@@ -200,7 +183,7 @@ export class AppComponent implements OnInit {
       this.options.channel = data.channelName;
       this.options.token = data.tokenA;
       this.initAgoraClient();
-
+      this.service.init(socketObj.ioSocket.id)
     })
     this.twilioService.getAccessToken(socketObj.ioSocket.id+this.roomName,this.roomName).subscribe((data:any)=>{
       this.conversationToken = data.conversationRoomAccessToken;
@@ -245,6 +228,15 @@ export class AppComponent implements OnInit {
 
   callRequest(){
     this.socketService.callRequestToAgent(this.payload);
+    this.loading = true;
+    this.showButton = false;
+  }
+
+  sendVoice(){
+    const payload ={
+    "userSid" : this.userSid,
+    "text": 'text'}
+    this.socketService.speechText(this.payload);
     this.loading = true;
     this.showButton = false;
   }

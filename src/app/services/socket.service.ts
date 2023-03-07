@@ -22,6 +22,10 @@ export class SocketService {
   userCallAccept(obj:any){
     this.socket.emit('UserCallAccept',obj);
   }
+  
+  speechText(obj:any){
+    this.socket.emit('speechText',obj);
+  }
 
   sendMessage(obj:any){
     this.socket.emit('userSendMessage',obj);
