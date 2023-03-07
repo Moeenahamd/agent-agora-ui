@@ -7,7 +7,7 @@ export class SocketService {
   id:any;
   agentAcceptedCall = this.socket.fromEvent('CallRequestAccepted');
   screenShareStarted = this.socket.fromEvent('screenShareStarted');
-  screenShareStoped = this.socket.fromEvent('screenShareStoped');
+  screenShareStopped = this.socket.fromEvent('screenShareStopped');
   messageReceived = this.socket.fromEvent('agentMessage');
   agentDisconnected = this.socket.fromEvent('agentDisconnected');
   constructor(private socket: Socket) { }
