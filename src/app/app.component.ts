@@ -83,7 +83,6 @@ export class AppComponent implements OnInit {
     this.socketService.connectSocket()
     this.socketService.screenShareStarted.subscribe((doc:any) => {
       this.screenMode = true;
-      console.log('Called')
       this.screenShare(doc.uid)
     });
     this.socketService.screenShareStopped.subscribe((doc:any) => {
