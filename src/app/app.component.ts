@@ -79,11 +79,10 @@ export class AppComponent implements OnInit {
   ngOnInit(): void {
     (this.el.nativeElement as HTMLElement).style.setProperty('--vh', window.innerHeight.toString()+"px");
     this.toastr.overlayContainer = this.toastContainer;
-    this.service.start();
     this.socketService.connectSocket()
     this.socketService.screenShareStarted.subscribe((doc:any) => {
       this.screenMode = true;
-      this.screenShare(doc.userSid)
+      this.screenShare(doc.uid)
     });
     this.socketService.screenShareStopped.subscribe((doc:any) => {
       this.screenMode = false;
@@ -92,7 +91,7 @@ export class AppComponent implements OnInit {
     this.socketService.agentAcceptedCall.subscribe((doc:any) => {
       this.loading = false;
       this.agentName = doc.agentName
-      this.userSid = doc.userSid;
+      this.userSid = doc.userUid;
       if(doc.avatar && doc.avatar != ""){
         this.avatar = doc.avatar;
       }
@@ -123,13 +122,13 @@ export class AppComponent implements OnInit {
     await this.agoraEngine.join(this.options.appId, this.options.channel,this.options.token, this.options.uid); 
     this.agoraEngine.on("user-published", async (user:any, mediaType:any) =>
     {
+
       await this.agoraEngine.subscribe(user, mediaType);
       if (mediaType === "video") {
         if(user._videoTrack){
           this.users.push(user)
         }
-        
-      this.agentsCalls();
+        this.agentsCalls();
       }
       if (mediaType == "audio")
       {
@@ -144,12 +143,12 @@ export class AppComponent implements OnInit {
     });  
   }
   screenShare(uid?:any){
+    uid = parseInt(uid);
     const user = this.users.findIndex(x=>x.uid == uid)
-    this.remoteScreenContainer.nativeElement.style.width = "96%";
+    this.remoteScreenContainer.nativeElement.style.width = "100%";
     this.remoteScreenContainer.nativeElement.style.height = "50%";
     this.remoteScreenContainer.nativeElement.style.position = 'absolute';
     this.remoteScreenContainer.nativeElement.style.top = '25%';
-    this.remoteScreenContainer.nativeElement.style.left = '2%';
     this.users[user].videoTrack.play(this.remoteScreenContainer.nativeElement);
   }
   agentsCalls(){
@@ -173,6 +172,7 @@ export class AppComponent implements OnInit {
     }
   }
   getAccessToken(){
+    this.service.start();
     this.chatButton = true;
     //this.loading = true;
     this.roomName = UUID.UUID()
