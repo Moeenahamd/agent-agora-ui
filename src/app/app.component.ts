@@ -139,9 +139,6 @@ export class AppComponent implements OnInit {
     this.agoraEngine.on("user-unpublished", async (user:any, mediaType:any) =>
     {
       this.users = this.users.filter(x=> x != user);
-      if(this.users.length == 0){
-        this.removeParticipant()
-      }
       this.agentsCalls();
     });  
   }
@@ -247,7 +244,7 @@ export class AppComponent implements OnInit {
   async sendMessage(){
     if( this.message && this.message != ''){
       const payload ={
-        "roomName":this.userSid,
+        "roomName":this.localParticipant,
         "msg":this.message
       }
       this.socketService.sendMessage(payload)
