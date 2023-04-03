@@ -139,6 +139,9 @@ export class AppComponent implements OnInit {
     this.agoraEngine.on("user-unpublished", async (user:any, mediaType:any) =>
     {
       this.users = this.users.filter(x=> x != user);
+      if(this.users.length == 0){
+        this.removeParticipant()
+      }
       this.agentsCalls();
     });  
   }
