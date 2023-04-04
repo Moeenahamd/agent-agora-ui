@@ -146,10 +146,15 @@ export class AppComponent implements OnInit {
     uid = parseInt(uid);
     const user = this.users.findIndex(x=>x.uid == uid)
     this.remoteScreenContainer.nativeElement.style.width = "100%";
-    this.remoteScreenContainer.nativeElement.style.height = "50%";
+    this.remoteScreenContainer.nativeElement.style.height = "100%";
     this.remoteScreenContainer.nativeElement.style.position = 'absolute';
-    this.remoteScreenContainer.nativeElement.style.top = '25%';
     this.users[user].videoTrack.play(this.remoteScreenContainer.nativeElement);
+  }
+  fullScreen(){
+    this.screenMode = true;
+  }
+  minScreen(){
+    this.screenMode = false;
   }
   agentsCalls(){
     if(this.users.length == 1){
