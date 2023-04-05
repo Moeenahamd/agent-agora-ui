@@ -59,6 +59,7 @@ export class AppComponent implements OnInit {
   };
   userSid:any;
   videoToken:any;
+  visibleCheck = false;
   userName:any;
   roomName:any;
   message:any;
@@ -82,10 +83,12 @@ export class AppComponent implements OnInit {
     this.socketService.connectSocket()
     this.socketService.screenShareStarted.subscribe((doc:any) => {
       this.screenMode = true;
+      this.visibleCheck = true;
       this.screenShare(doc.uid)
     });
     this.socketService.screenShareStopped.subscribe((doc:any) => {
       this.screenMode = false;
+      this.visibleCheck = false;
       this.agentsCalls();
     });
     this.socketService.agentAcceptedCall.subscribe((doc:any) => {

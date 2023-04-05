@@ -35,8 +35,8 @@
           <i *ngIf="audioMode" style="font-size:30px;color:white;position: absolute; top:58px;right:15px" (click)="muteAudio()" class="fa fa-microphone"></i>
           <i *ngIf="!videoMode" style="font-size:28px;color:white; position: absolute; top:100px;right:13px" (click)="unMuteVideo()" class="bi bi-camera-video-off-fill" aria-hidden="true"></i>
           <i *ngIf="videoMode" style="font-size:28px;color:white; position: absolute; top:100px;right:13px" (click)="muteVideo()" class="bi bi-camera-video-fill" aria-hidden="true"></i>
-          <i *ngIf="!screenMode" style="font-size:28px;color:white; position: absolute; top:150px;right:13px" (click)="fullScreen()" class="bi bi-arrows-fullscreen" aria-hidden="true"></i>
-          <i *ngIf="screenMode" style="font-size:28px;color:green; position: absolute; top:150px;right:13px" (click)="minScreen()" class="bi bi-fullscreen-exit" aria-hidden="true"></i>
+          <i *ngIf="!screenMode && visibleCheck" style="font-size:28px;color:white; position: absolute; top:150px;right:13px" (click)="fullScreen()" class="bi bi-arrows-fullscreen" aria-hidden="true"></i>
+          <i *ngIf="screenMode && visibleCheck" style="font-size:28px;color:green; position: absolute; top:150px;right:13px" (click)="minScreen()" class="bi bi-fullscreen-exit" aria-hidden="true"></i>
         </div>
         <div *ngIf="!loading" class="messages-contect">
           <div class="wrapper1" #scrollBottom>
