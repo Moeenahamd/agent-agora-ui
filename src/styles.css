@@ -3,6 +3,14 @@ body {
     background-color: black
 }
 
+.agora_video_player{
+  object-fit: fill !important;
+}
+
+video{
+  object-fit: fill !important;
+}
+
 .chat-btn {
     position: absolute;
     right: 14px;

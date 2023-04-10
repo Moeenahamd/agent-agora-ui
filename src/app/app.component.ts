@@ -15,12 +15,15 @@ export class AppComponent implements OnInit {
   @ViewChild ('remoteMediaContainer1') remoteMediaContainer1:any;
   @ViewChild ('remoteMediaContainer2') remoteMediaContainer2:any;
   @ViewChild ('remoteScreenContainer') remoteScreenContainer:any;
+  @ViewChild ('fullScreenContainer') fullScreenContainer:any;
+  
   
   @ViewChild('scrollBottom') scrollBottom: any;
   @ViewChild(ToastContainerDirective, { static: true })
   toastContainer: any;
   agoraClient:any;
   screenMode= false;
+  fullScreenMode = false;
   agentName:any;
   contHeigth:any;
   agentImage:any = "url('../assets/background.png')";
@@ -58,6 +61,7 @@ export class AppComponent implements OnInit {
       remoteUid: null,
   };
   userSid:any;
+  screenUid:any;
   videoToken:any;
   visibleCheck = false;
   userName:any;
@@ -146,17 +150,36 @@ export class AppComponent implements OnInit {
     });  
   }
   screenShare(uid?:any){
-    uid = parseInt(uid);
-    const user = this.users.findIndex(x=>x.uid == uid)
+    this.screenUid = parseInt(uid);
+    const user = this.users.findIndex(x=>x.uid == this.screenUid)
     this.remoteScreenContainer.nativeElement.style.width = "100%";
     this.remoteScreenContainer.nativeElement.style.height = "100%";
     this.remoteScreenContainer.nativeElement.style.position = 'absolute';
     this.users[user].videoTrack.play(this.remoteScreenContainer.nativeElement);
   }
   fullScreen(){
-    this.screenMode = true;
+    this.fullScreenMode  = true;
+    
+    const user = this.users.findIndex(x=>x.uid == this.screenUid)
+    this.fullScreenContainer.nativeElement.style.width = "100%";
+    this.fullScreenContainer.nativeElement.style.height = "100%";
+    this.fullScreenContainer.nativeElement.style.position = 'absolute';
+    this.users[user].videoTrack.play(this.fullScreenContainer.nativeElement);
+
+    this.screenMode = false;
   }
   minScreen(){
+    this.fullScreenMode  = false;
+    this.screenMode = true;
+    const user = this.users.findIndex(x=>x.uid == this.screenUid)
+    this.remoteScreenContainer.nativeElement.style.width = "100%";
+    this.remoteScreenContainer.nativeElement.style.height = "100%";
+    this.remoteScreenContainer.nativeElement.style.position = 'absolute';
+    this.users[user].videoTrack.play(this.remoteScreenContainer.nativeElement);
+  }
+
+  removeScreen(){
+    this.fullScreenMode  = false;
     this.screenMode = false;
   }
   agentsCalls(){
@@ -180,7 +203,6 @@ export class AppComponent implements OnInit {
     }
   }
   getAccessToken(){
-    this.service.start();
     this.chatButton = true;
     //this.loading = true;
     this.roomName = UUID.UUID()
@@ -224,11 +246,13 @@ export class AppComponent implements OnInit {
     this.videoMode = false;
   }
   async muteAudio(){
+    this.service.stop();
     this.audioMode = false;
     this.localAudioTracks.close();
     await this.agoraEngine.unpublish([this.localAudioTracks]);
   }
   async unMuteAudio(){
+    this.service.start();
     this.audioMode = true;
     this.localAudioTracks = await AgoraRTC.createMicrophoneAudioTrack(); 
     await this.agoraEngine.publish([ this.localAudioTracks]);
