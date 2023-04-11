@@ -4,11 +4,7 @@ body {
 }
 
 .agora_video_player{
-  object-fit: fill !important;
-}
-
-video{
-  object-fit: fill !important;
+  object-fit: contain !important;
 }
 
 .chat-btn {
@@ -156,6 +152,7 @@ to{ bottom:0; opacity:1 }
 .loader-content{    
     position: absolute;
     width: 100%;
+    background-color: darkgray;
     background-size: contain;
     background-repeat: no-repeat;
     height: 100%;
@@ -163,7 +160,7 @@ to{ bottom:0; opacity:1 }
 .loading {
     margin: 20px;
     width: 100px;
-    margin:50% auto;
+    margin:30% auto;
     height: 100px;
     -webkit-animation-name: spin;
     -webkit-animation-duration: 2000ms;

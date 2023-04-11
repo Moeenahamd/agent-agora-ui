@@ -3,8 +3,13 @@
 	<label class="chat-btn" for="check" (click)="getAccessToken()">
 		<img  src="../assets/instagram.gif" style="border-radius: 50%;">
 	</label>
-	<div *ngIf="chatButton" class="wrapper shadow-lg" #toastContainer>
-    <div class="bg-image" [style.background-image]="agentImage"></div>
+  <div [hidden]="!fullScreenMode" style="position: absolute;width: 100%;height: 100%;">
+    <div  #fullScreenContainer></div>
+    
+    <i style="font-size:32px;color:white;position: absolute; top:0px;right:10px; cursor: pointer;" (click)="minScreen()"  class="bi bi-x"></i>
+  </div>
+	<div *ngIf="chatButton" [hidden]="fullScreenMode" class="wrapper shadow-lg" #toastContainer>
+    <!-- <div class="bg-image" [style.background-image]="agentImage"></div> -->
     <div *ngIf="loading" class="loader-content">
       <div class="loading">
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 4335 4335" width="100" height="100">
@@ -12,6 +17,8 @@
           />
         </svg>
       </div>
+      
+      <div style="color:white; padding:0px 60px; font-size: 24px;">Welcome allow me to connect you to the next available agent</div>
     </div>
     <div *ngIf="showButton" style="z-index: 5;position: absolute; top:50%; left:40%;cursor: pointer;">
       <button (click)="callRequest()" class="btn-light"> Call Again</button>
@@ -21,11 +28,6 @@
       <div #localMediaContainer></div>  
       <div [hidden]="!screenMode || fullScreenMode" style="position: absolute;top: 50px;width: 90%;height: 80%;">
         <div  #remoteScreenContainer></div>
-      </div>
-      <div [hidden]="!fullScreenMode" style="position: absolute;width: 100%;height: 100%;">
-        <div  #fullScreenContainer></div>
-        
-        <i style="font-size:32px;color:white;position: absolute; top:0px;right:10px; cursor: pointer;" (click)="minScreen()"  class="bi bi-x"></i>
       </div>
       <div [hidden]="screenMode || fullScreenMode" #remoteMediaContainer1></div>
       <div [hidden]="screenMode || fullScreenMode" #remoteMediaContainer2></div>
@@ -41,7 +43,7 @@
           <i *ngIf="!videoMode" style="font-size:24px;color:white; position: absolute; top:100px;right:8px;cursor: pointer;" (click)="unMuteVideo()" class="fas fa-video-slash" aria-hidden="true"></i>
           <i *ngIf="videoMode" style="font-size:24px;color:white; position: absolute; top:100px;right:8px;cursor: pointer;" (click)="muteVideo()" class="fas fa-video" aria-hidden="true"></i>
           <i *ngIf="visibleCheck" style="font-size:24px;color:white; position: absolute; top:140px;right:10px;cursor: pointer;" (click)="fullScreen()" class="bi bi-arrows-fullscreen" aria-hidden="true"></i>
-          <i *ngIf="visibleCheck" style="font-size:24px;color:white; position: absolute; top:185px;right:10px;cursor: pointer;" (click)="removeScreen()" class="bi bi-fullscreen-exit" aria-hidden="true"></i>
+          <!-- <i *ngIf="visibleCheck" style="font-size:24px;color:white; position: absolute; top:185px;right:10px;cursor: pointer;" (click)="removeScreen()" class="bi bi-fullscreen-exit" aria-hidden="true"></i> -->
         </div>
         <div *ngIf="!loading" class="messages-contect">
           <div class="wrapper1" #scrollBottom>
@@ -66,7 +68,7 @@
             </div>
           </div> 
         </div>
-        <div class="footer">
+        <div class="footer" *ngIf="!fullScreenMode">
           <input class="form me-2  border" [disabled]="loading" [(ngModel)]="message" style="color:white;padding:10px;border-radius:50px;outline: none;width: 75%;background: none;border: 2px solid white !important;" type="text" placeholder="Add a Comment">
           <svg style="color: white;width: 45px;height: 43px; margin-left: 30px;"  (click)="sendMessage()" xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 512 512"><title>ionicons-v5-q</title><path d="M16,464,496,256,16,48V208l320,48L16,304Z" fill="white"></path></svg>
         </div>

@@ -88,10 +88,11 @@ export class AppComponent implements OnInit {
     this.socketService.screenShareStarted.subscribe((doc:any) => {
       this.screenMode = true;
       this.visibleCheck = true;
+      console.log(doc);
       this.screenShare(doc.uid)
     });
     this.socketService.screenShareStopped.subscribe((doc:any) => {
-      this.screenMode = false;
+      this.removeScreen();
       this.visibleCheck = false;
       this.agentsCalls();
     });
@@ -183,14 +184,15 @@ export class AppComponent implements OnInit {
     this.screenMode = false;
   }
   agentsCalls(){
-    if(this.users.length == 1){
+    var users = this.users.filter(x=> x.uid != this.screenUid)
+    if(users.length == 1){
       this.remoteMediaContainer1.nativeElement.style.width = "100%";
       this.remoteMediaContainer1.nativeElement.style.height = "100%";
       this.remoteMediaContainer1.nativeElement.style.position = 'absolute';
       this.remoteMediaContainer1.nativeElement.style.left = '0px';
-      this.users[0].videoTrack.play(this.remoteMediaContainer1.nativeElement);
+      users[0].videoTrack.play(this.remoteMediaContainer1.nativeElement);
     }
-    else if(this.users.length == 2){
+    else if(users.length == 2){
       
       this.remoteMediaContainer2.nativeElement.style.height = "50%";
       this.remoteMediaContainer2.nativeElement.style.width = "100%";
@@ -198,13 +200,13 @@ export class AppComponent implements OnInit {
       this.remoteMediaContainer2.nativeElement.style.position = 'absolute';
       this.remoteMediaContainer2.nativeElement.style.left = '0px';
       this.remoteMediaContainer2.nativeElement.style.top = '50%';
-      this.users[1].videoTrack.play(this.remoteMediaContainer2.nativeElement);
+      users[1].videoTrack.play(this.remoteMediaContainer2.nativeElement);
       this.remoteMediaContainer1.nativeElement.style.height = "50%";
     }
   }
   getAccessToken(){
     this.chatButton = true;
-    //this.loading = true;
+    this.loading = true;
     this.roomName = UUID.UUID()
     const socketObj=this.socketService.getSocket();
     this.localParticipant = socketObj.ioSocket.id;
