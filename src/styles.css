@@ -7,6 +7,10 @@ body {
   object-fit: fill !important;
 }
 
+.fullScreen .agora_video_player{
+  object-fit: contain !important;
+}
+
 .chat-btn {
     position: absolute;
     right: 14px;
@@ -75,8 +79,8 @@ position: absolute;
 left: 50%;
 top: 50%;
 z-index: 1;
-width: 120px;
-height: 120px;
+width: 70px;
+height: 70px;
 margin: -76px 0 0 -76px;
 border: 16px solid #f3f3f3;
 border-radius: 50%;
@@ -159,9 +163,9 @@ to{ bottom:0; opacity:1 }
 }
 .loading {
     margin: 20px;
-    width: 100px;
-    margin:50% auto 15%;
-    height: 100px;
+    width: 70px;
+    margin:50% auto 10%;
+    height: 70px;
     -webkit-animation-name: spin;
     -webkit-animation-duration: 2000ms;
     -webkit-animation-iteration-count: infinite;

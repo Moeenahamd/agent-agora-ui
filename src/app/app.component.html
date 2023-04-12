@@ -3,7 +3,7 @@
 	<label class="chat-btn" for="check" (click)="getAccessToken()">
 		<img  src="../assets/instagram.gif" style="border-radius: 50%;">
 	</label>
-  <div [hidden]="!fullScreenMode" style="position: absolute;width: 100%;height: 100%;">
+  <div [hidden]="!fullScreenMode" class="fullScreen" style="position: absolute;width: 100%;height: 100%;">
     <div  #fullScreenContainer></div>
     
     <i style="font-size:32px;color:white;position: absolute; top:0px;right:10px; cursor: pointer;" (click)="minScreen()"  class="bi bi-x"></i>
@@ -12,7 +12,7 @@
     <!-- <div class="bg-image" [style.background-image]="agentImage"></div> -->
     <div *ngIf="loading" class="loader-content">
       <div class="loading">
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 4335 4335" width="100" height="100">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 4335 4335" width="70" height="70">
           <path fill="#008DD2" d="M3346 1077c41,0 75,34 75,75 0,41 -34,75 -75,75 -41,0 -75,-34 -75,-75 0,-41 34,-75 75,-75zm-1198 -824c193,0 349,156 349,349 0,193 -156,349 -349,349 -193,0 -349,-156 -349,-349 0,-193 156,-349 349,-349zm-1116 546c151,0 274,123 274,274 0,151 -123,274 -274,274 -151,0 -274,-123 -274,-274 0,-151 123,-274 274,-274zm-500 1189c134,0 243,109 243,243 0,134 -109,243 -243,243 -134,0 -243,-109 -243,-243 0,-134 109,-243 243,-243zm500 1223c121,0 218,98 218,218 0,121 -98,218 -218,218 -121,0 -218,-98 -218,-218 0,-121 98,-218 218,-218zm1116 434c110,0 200,89 200,200 0,110 -89,200 -200,200 -110,0 -200,-89 -200,-200 0,-110 89,-200 200,-200zm1145 -434c81,0 147,66 147,147 0,81 -66,147 -147,147 -81,0 -147,-66 -147,-147 0,-81 66,-147 147,-147zm459 -1098c65,0 119,53 119,119 0,65 -53,119 -119,119 -65,0 -119,-53 -119,-119 0,-65 53,-119 119,-119z"
           />
         </svg>
@@ -34,7 +34,7 @@
     </div>
         
 			<div  style="z-index: 4;" *ngIf="!fullScreenMode">
-        <div style="position: relative;" class="top-bar">
+        <div style="position: relative;" class="top-bar" *ngIf="!loading">
           <i style="font-size:30px;color:white;position: absolute; top:5px;left:17px;cursor: pointer;" class="bi bi-person-circle"></i>
           <span style="font-size:18px;color:white;position: absolute; top:14px;left:58px;cursor: pointer;">{{agentName}}</span>
           <i style="font-size:32px;color:white;position: absolute; top:0px;right:10px; cursor: pointer;" (click)="removeParticipant()" class="bi bi-x"></i>
@@ -68,7 +68,7 @@
             </div>
           </div> 
         </div>
-        <div class="footer" *ngIf="!fullScreenMode">
+        <div class="footer" *ngIf="!fullScreenMode && !loading">
           <input class="form me-2  border" [disabled]="loading" [(ngModel)]="message" style="color:white;padding:10px;border-radius:50px;outline: none;width: 75%;background: none;border: 2px solid white !important;" type="text" placeholder="Add a Comment">
           <svg style="color: white;width: 45px;height: 43px; margin-left: 30px;"  (click)="sendMessage()" xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 512 512"><title>ionicons-v5-q</title><path d="M16,464,496,256,16,48V208l320,48L16,304Z" fill="white"></path></svg>
         </div>
