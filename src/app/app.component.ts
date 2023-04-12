@@ -25,6 +25,7 @@ export class AppComponent implements OnInit {
   screenMode= false;
   fullScreenMode = false;
   agentName:any;
+  live=false;
   contHeigth:any;
   agentImage:any = "url('../assets/background.png')";
   avatar:any = "https://static.turbosquid.com/Preview/001292/481/WV/_D.jpg";
@@ -98,6 +99,7 @@ export class AppComponent implements OnInit {
     });
     this.socketService.agentAcceptedCall.subscribe((doc:any) => {
       this.loading = false;
+      this.live =true;
       this.agentName = doc.agentName
       this.userSid = doc.userUid;
       if(doc.avatar && doc.avatar != ""){

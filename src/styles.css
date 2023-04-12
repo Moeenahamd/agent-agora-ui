@@ -11,6 +11,10 @@ body {
   object-fit: contain !important;
 }
 
+.videoCall .agora_video_player{
+  object-fit: cover !important;
+}
+
 .chat-btn {
     position: absolute;
     right: 14px;

@@ -29,14 +29,14 @@
       <div [hidden]="!screenMode || fullScreenMode" style="position: absolute;top: 50px;width: 90%;height: 80%;">
         <div  #remoteScreenContainer></div>
       </div>
-      <div [hidden]="screenMode || fullScreenMode" #remoteMediaContainer1></div>
-      <div [hidden]="screenMode || fullScreenMode" #remoteMediaContainer2></div>
+      <div class="videoCall" [hidden]="screenMode || fullScreenMode" #remoteMediaContainer1></div>
+      <div class="videoCall" [hidden]="screenMode || fullScreenMode" #remoteMediaContainer2></div>
     </div>
         
 			<div  style="z-index: 4;" *ngIf="!fullScreenMode">
         <div style="position: relative;" class="top-bar" *ngIf="!loading">
           <i style="font-size:30px;color:white;position: absolute; top:5px;left:17px;cursor: pointer;" class="bi bi-person-circle"></i>
-          <span style="font-size:18px;color:white;position: absolute; top:14px;left:58px;cursor: pointer;">{{agentName}}</span>
+          <span style="font-size:18px;color:white;position: absolute; top:14px;left:58px;cursor: pointer;">{{agentName}} <span *ngIf="live" style="color:red">Live</span></span>
           <i style="font-size:32px;color:white;position: absolute; top:0px;right:10px; cursor: pointer;" (click)="removeParticipant()" class="bi bi-x"></i>
           <i *ngIf="!audioMode" style="font-size:24px;color:white;position: absolute; top:55px;right:15px;cursor: pointer;"(click)="unMuteAudio()" class="material-icons">mic_off</i>
           <i *ngIf="audioMode" style="font-size:24px;color:white;position: absolute; top:55px;right:15px;cursor: pointer;" (click)="muteAudio()" class="material-icons">mic_none</i>
