@@ -38,10 +38,10 @@
           <i style="font-size:30px;color:white;position: absolute; top:5px;left:17px;cursor: pointer;" class="bi bi-person-circle"></i>
           <span style="font-size:18px;color:white;position: absolute; top:14px;left:58px;cursor: pointer;">{{agentName}}</span>
           <i style="font-size:32px;color:white;position: absolute; top:0px;right:10px; cursor: pointer;" (click)="removeParticipant()" class="bi bi-x"></i>
-          <i *ngIf="!audioMode" style="font-size:24px;color:white;position: absolute; top:55px;right:10px;cursor: pointer;"(click)="unMuteAudio()" class="fas fa-microphone-slash"></i>
-          <i *ngIf="audioMode" style="font-size:24px;color:white;position: absolute; top:55px;right:15px;cursor: pointer;" (click)="muteAudio()" class="fas fa-microphone"></i>
-          <i *ngIf="!videoMode" style="font-size:24px;color:white; position: absolute; top:100px;right:8px;cursor: pointer;" (click)="unMuteVideo()" class="fas fa-video-slash" aria-hidden="true"></i>
-          <i *ngIf="videoMode" style="font-size:24px;color:white; position: absolute; top:100px;right:8px;cursor: pointer;" (click)="muteVideo()" class="fas fa-video" aria-hidden="true"></i>
+          <i *ngIf="!audioMode" style="font-size:24px;color:white;position: absolute; top:55px;right:15px;cursor: pointer;"(click)="unMuteAudio()" class="material-icons">mic_off</i>
+          <i *ngIf="audioMode" style="font-size:24px;color:white;position: absolute; top:55px;right:15px;cursor: pointer;" (click)="muteAudio()" class="material-icons">mic_none</i>
+          <i *ngIf="!videoMode" style="font-size:24px;color:white; position: absolute; top:100px;right:15px;cursor: pointer;" (click)="unMuteVideo()" class="material-icons" aria-hidden="true">videocam_off</i>
+          <i *ngIf="videoMode" style="font-size:24px;color:white; position: absolute; top:100px;right:15px;cursor: pointer;" (click)="muteVideo()" class="material-icons" aria-hidden="true">videocam</i>
           <i *ngIf="visibleCheck" style="font-size:24px;color:white; position: absolute; top:140px;right:10px;cursor: pointer;" (click)="fullScreen()" class="bi bi-arrows-fullscreen" aria-hidden="true"></i>
           <!-- <i *ngIf="visibleCheck" style="font-size:24px;color:white; position: absolute; top:185px;right:10px;cursor: pointer;" (click)="removeScreen()" class="bi bi-fullscreen-exit" aria-hidden="true"></i> -->
         </div>
