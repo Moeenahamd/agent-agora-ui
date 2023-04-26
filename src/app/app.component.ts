@@ -62,7 +62,7 @@ export class AppComponent implements OnInit {
       remoteUid: null,
   };
   userSid:any;
-  screenUid:any;
+  screenElement:any;
   videoToken:any;
   visibleCheck = false;
   userName:any;
@@ -70,8 +70,11 @@ export class AppComponent implements OnInit {
   message:any;
   agentCount =0;
   users:any[] =[];
+  callUsers:any[] =[];
+  screenUsers:any[] =[];
   videos:any[] = [];
   showButton = false;
+  userIndex:any[] = []
   messages:any[]=[];
   videoMode = false;
   audioMode = false;
@@ -90,7 +93,8 @@ export class AppComponent implements OnInit {
       this.screenMode = true;
       this.visibleCheck = true;
       console.log(doc);
-      this.screenShare(doc.uid)
+      this.screenElement = doc;
+      this.screenShare();
     });
     this.socketService.screenShareStopped.subscribe((doc:any) => {
       this.removeScreen();
@@ -102,6 +106,7 @@ export class AppComponent implements OnInit {
       this.live =true;
       this.agentName = doc.agentName
       this.userSid = doc.userUid;
+      console.log(doc)
       if(doc.avatar && doc.avatar != ""){
         this.avatar = doc.avatar;
       }
@@ -121,6 +126,8 @@ export class AppComponent implements OnInit {
     });
     this.socketService.agentDisconnected.subscribe((doc:any) => {
       this.messages = [];
+      console.log(doc)
+      this.userIndex = this.userIndex.filter(x=> x != doc.uid);
       this.toastr.success('Call disconnected or agent leaved')
     });
  
@@ -132,13 +139,13 @@ export class AppComponent implements OnInit {
     await this.agoraEngine.join(this.options.appId, this.options.channel,this.options.token, this.options.uid); 
     this.agoraEngine.on("user-published", async (user:any, mediaType:any) =>
     {
-
       await this.agoraEngine.subscribe(user, mediaType);
       if (mediaType === "video") {
         if(user._videoTrack){
           this.users.push(user)
+          this.userIndex.push(user.uid);
+          this.agentsCalls();
         }
-        this.agentsCalls();
       }
       if (mediaType == "audio")
       {
@@ -148,22 +155,44 @@ export class AppComponent implements OnInit {
     });
     this.agoraEngine.on("user-unpublished", async (user:any, mediaType:any) =>
     {
+      console.log('UnPublich Called')
       this.users = this.users.filter(x=> x != user);
       this.agentsCalls();
     });  
   }
-  screenShare(uid?:any){
-    this.screenUid = parseInt(uid);
-    const user = this.users.findIndex(x=>x.uid == this.screenUid)
-    this.remoteScreenContainer.nativeElement.style.width = "100%";
-    this.remoteScreenContainer.nativeElement.style.height = "100%";
-    this.remoteScreenContainer.nativeElement.style.position = 'absolute';
-    this.users[user].videoTrack.play(this.remoteScreenContainer.nativeElement);
+  screenShare(){
+    debugger
+    const uid = parseInt(this.screenElement.uid);
+    const user = this.users.findIndex(x=>x.uid == uid)
+    this.userIndex = this.userIndex.filter(x=>x != uid)
+    const videoUid = parseInt(this.screenElement.videoUid);
+    
+    const screenIndex = this.userIndex.findIndex(x=>x == videoUid)
+    if(screenIndex == 0 && this.userIndex.length == 1){
+      this.remoteScreenContainer.nativeElement.style.width = "100%";
+      this.remoteScreenContainer.nativeElement.style.height = "100%";
+      this.remoteScreenContainer.nativeElement.style.position = 'absolute';
+      this.users[user].videoTrack.play(this.remoteScreenContainer.nativeElement);
+    }
+    else if(screenIndex == 0 && this.userIndex.length == 2){
+      this.remoteScreenContainer.nativeElement.style.width = "100%";
+      this.remoteScreenContainer.nativeElement.style.height = "50%";
+      this.remoteScreenContainer.nativeElement.style.position = 'absolute';
+      this.users[user].videoTrack.play(this.remoteScreenContainer.nativeElement);
+    }
+    else{
+      this.remoteScreenContainer.nativeElement.style.width = "100%";
+      this.remoteScreenContainer.nativeElement.style.height = "50%";
+      this.remoteScreenContainer.nativeElement.style.position = 'absolute';
+      this.remoteScreenContainer.nativeElement.style.top = '50%';
+      this.users[user].videoTrack.play(this.remoteScreenContainer.nativeElement);
+    }
   }
   fullScreen(){
     this.fullScreenMode  = true;
     
-    const user = this.users.findIndex(x=>x.uid == this.screenUid)
+    const uid = parseInt(this.screenElement.uid);
+    const user = this.users.findIndex(x=>x.uid == uid)
     this.fullScreenContainer.nativeElement.style.width = "100%";
     this.fullScreenContainer.nativeElement.style.height = "100%";
     this.fullScreenContainer.nativeElement.style.position = 'absolute';
@@ -174,7 +203,9 @@ export class AppComponent implements OnInit {
   minScreen(){
     this.fullScreenMode  = false;
     this.screenMode = true;
-    const user = this.users.findIndex(x=>x.uid == this.screenUid)
+    
+    const uid = parseInt(this.screenElement.uid);
+    const user = this.users.findIndex(x=>x.uid == uid)
     this.remoteScreenContainer.nativeElement.style.width = "100%";
     this.remoteScreenContainer.nativeElement.style.height = "100%";
     this.remoteScreenContainer.nativeElement.style.position = 'absolute';
@@ -186,24 +217,65 @@ export class AppComponent implements OnInit {
     this.screenMode = false;
   }
   agentsCalls(){
-    var users = this.users.filter(x=> x.uid != this.screenUid)
-    if(users.length == 1){
+    debugger
+    var users = [];
+    if(this.screenElement){
+      const uid = parseInt(this.screenElement.uid);
+      users = this.users.filter(x=> x.uid != uid)
+    }
+    else{
+      users = this.users
+    }
+
+    if(this.userIndex.length == 1){
       this.remoteMediaContainer1.nativeElement.style.width = "100%";
       this.remoteMediaContainer1.nativeElement.style.height = "100%";
       this.remoteMediaContainer1.nativeElement.style.position = 'absolute';
       this.remoteMediaContainer1.nativeElement.style.left = '0px';
       users[0].videoTrack.play(this.remoteMediaContainer1.nativeElement);
     }
-    else if(users.length == 2){
-      
-      this.remoteMediaContainer2.nativeElement.style.height = "50%";
-      this.remoteMediaContainer2.nativeElement.style.width = "100%";
-      this.remoteMediaContainer2.nativeElement.style.height = "50%";
-      this.remoteMediaContainer2.nativeElement.style.position = 'absolute';
-      this.remoteMediaContainer2.nativeElement.style.left = '0px';
-      this.remoteMediaContainer2.nativeElement.style.top = '50%';
-      users[1].videoTrack.play(this.remoteMediaContainer2.nativeElement);
-      this.remoteMediaContainer1.nativeElement.style.height = "50%";
+    else if(this.userIndex.length == 2){
+      if(users.length == 1){
+        const uid = parseInt(users[0].uid);
+        const userIndex = this.userIndex.findIndex(x=>x == uid)
+        if(userIndex == 0){
+          this.remoteMediaContainer1.nativeElement.style.width = "100%";
+          this.remoteMediaContainer1.nativeElement.style.height = "50%";
+          this.remoteMediaContainer1.nativeElement.style.position = 'absolute';
+          this.remoteMediaContainer1.nativeElement.style.left = '0px';
+          this.remoteMediaContainer2.nativeElement.style.top = '0px';
+          users[0].videoTrack.play(this.remoteMediaContainer1.nativeElement);
+        }
+        else if (userIndex == 1){
+          this.remoteMediaContainer2.nativeElement.style.height = "50%";
+          this.remoteMediaContainer2.nativeElement.style.width = "100%";
+          this.remoteMediaContainer2.nativeElement.style.position = 'absolute';
+          this.remoteMediaContainer2.nativeElement.style.left = '0px';
+          this.remoteMediaContainer2.nativeElement.style.top = '50%';
+          users[0].videoTrack.play(this.remoteMediaContainer2.nativeElement);
+        }
+      }
+      else if(users.length == 2){
+        
+        const uid1 = parseInt(this.userIndex[0]);
+        const userIndex1 = users.findIndex(x=>x.uid == uid1)
+        const uid2 = parseInt(this.userIndex[1]);
+        const userIndex2 = this.users.findIndex(x=>x.uid == uid2)
+        
+        this.remoteMediaContainer1.nativeElement.style.width = "100%";
+        this.remoteMediaContainer1.nativeElement.style.height = "50%";
+        this.remoteMediaContainer1.nativeElement.style.position = 'absolute';
+        this.remoteMediaContainer1.nativeElement.style.left = '0px';
+        this.remoteMediaContainer2.nativeElement.style.top = '0px';
+        users[userIndex1].videoTrack.play(this.remoteMediaContainer1.nativeElement);
+        this.remoteMediaContainer2.nativeElement.style.height = "50%";
+        this.remoteMediaContainer2.nativeElement.style.width = "100%";
+        this.remoteMediaContainer2.nativeElement.style.height = "50%";
+        this.remoteMediaContainer2.nativeElement.style.position = 'absolute';
+        this.remoteMediaContainer2.nativeElement.style.left = '0px';
+        this.remoteMediaContainer2.nativeElement.style.top = '50%';
+        users[userIndex2].videoTrack.play(this.remoteMediaContainer2.nativeElement);
+      }
     }
   }
   getAccessToken(){
@@ -292,15 +364,18 @@ export class AppComponent implements OnInit {
     }
   }
   removeParticipant(){
+    console.log('CallDicconnected Called')
     this.socketService.callDicconnected(this.userSid)
     this.agoraEngine.leave();
     this.users = [];
     this.chatButton = false;
   }
   scrollToBottom(): void {
-    try {
-      this.scrollBottom.nativeElement.scrollTop = this.scrollBottom.nativeElement.scrollHeight + 400;
-    } catch(err) { }                 
+    setTimeout(()=>{
+      try {
+        this.scrollBottom.nativeElement.scrollTop = this.scrollBottom.nativeElement.scrollHeight + 400;
+      } catch(err) { }
+    },2000)                 
   }
   timer() {
     // let minute = 1;

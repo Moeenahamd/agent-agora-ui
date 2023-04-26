@@ -9,7 +9,7 @@ export class SocketService {
   screenShareStarted = this.socket.fromEvent('screenShareStarted');
   screenShareStopped = this.socket.fromEvent('screenShareStopped');
   messageReceived = this.socket.fromEvent('agentMessage');
-  agentDisconnected = this.socket.fromEvent('agentDisconnected');
+  agentDisconnected = this.socket.fromEvent('agentLeavedConversationRoom');
   constructor(private socket: Socket) { }
   async connectSocket() {
     await this.socket.emit('Connected');
@@ -31,6 +31,7 @@ export class SocketService {
     this.socket.emit('userSendMessage',obj);
   }
   callDicconnected(obj:any){
+    console.log('callDicconnected')
     this.socket.emit('UserDisconnect',obj);
   }
   getSocket(){
