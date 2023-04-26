@@ -106,6 +106,8 @@ export class AppComponent implements OnInit {
       this.live =true;
       this.agentName = doc.agentName
       this.userSid = doc.userUid;
+      
+      this.userIndex.push(doc.videoUid);
       console.log(doc)
       if(doc.avatar && doc.avatar != ""){
         this.avatar = doc.avatar;
@@ -113,6 +115,9 @@ export class AppComponent implements OnInit {
       this.agentImage = doc.image;
       this.socketService.userCallAccept(doc);
     });
+    this.socketService.agentTransferCallEstablished.subscribe((doc:any) => {
+      this.userIndex.push(doc.videoUid);
+    })
     this.twilioService.getAgentImage().subscribe((doc:any) => {
       this.agentImage = doc.img;
     });
@@ -128,6 +133,7 @@ export class AppComponent implements OnInit {
       this.messages = [];
       console.log(doc)
       this.userIndex = this.userIndex.filter(x=> x != doc.uid);
+      this.agentsCalls();
       this.toastr.success('Call disconnected or agent leaved')
     });
  
@@ -142,9 +148,10 @@ export class AppComponent implements OnInit {
       await this.agoraEngine.subscribe(user, mediaType);
       if (mediaType === "video") {
         if(user._videoTrack){
+          console.log('User Added')
           this.users.push(user)
-          this.userIndex.push(user.uid);
-          this.agentsCalls();
+          if(!this.screenMode)
+            this.agentsCalls();
         }
       }
       if (mediaType == "audio")
@@ -157,7 +164,6 @@ export class AppComponent implements OnInit {
     {
       console.log('UnPublich Called')
       this.users = this.users.filter(x=> x != user);
-      this.agentsCalls();
     });  
   }
   screenShare(){

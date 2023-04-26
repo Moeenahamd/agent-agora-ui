@@ -8,7 +8,7 @@ body {
 }
 
 .fullScreen .agora_video_player{
-  object-fit: fill !important;
+  object-fit: contain !important;
 }
 
 .videoCall .agora_video_player{

@@ -10,6 +10,8 @@ export class SocketService {
   screenShareStopped = this.socket.fromEvent('screenShareStopped');
   messageReceived = this.socket.fromEvent('agentMessage');
   agentDisconnected = this.socket.fromEvent('agentLeavedConversationRoom');
+  agentTransferCallEstablished = this.socket.fromEvent('AgentTransferCallEstablished');
+  
   constructor(private socket: Socket) { }
   async connectSocket() {
     await this.socket.emit('Connected');
