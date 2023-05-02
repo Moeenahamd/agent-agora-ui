@@ -93,13 +93,15 @@ export class AppComponent implements OnInit {
       this.screenMode = true;
       this.visibleCheck = true;
       console.log(doc);
+      console.log("Screen Share Started");
       this.screenElement = doc;
-      this.screenShare();
+      //this.screenShare();
     });
     this.socketService.screenShareStopped.subscribe((doc:any) => {
       this.removeScreen();
       this.visibleCheck = false;
-      this.agentsCalls();
+      console.log("Screen Share Stoped");
+      //this.agentsCalls();
     });
     this.socketService.agentAcceptedCall.subscribe((doc:any) => {
       this.loading = false;
@@ -108,7 +110,6 @@ export class AppComponent implements OnInit {
       this.userSid = doc.userUid;
       
       this.userIndex.push(doc.videoUid);
-      console.log(doc)
       if(doc.avatar && doc.avatar != ""){
         this.avatar = doc.avatar;
       }
@@ -130,11 +131,13 @@ export class AppComponent implements OnInit {
       this.scrollToBottom();
     });
     this.socketService.agentDisconnected.subscribe((doc:any) => {
-      this.messages = [];
       console.log(doc)
       this.userIndex = this.userIndex.filter(x=> x != doc.uid);
       this.agentsCalls();
       this.toastr.success('Call disconnected or agent leaved')
+      if(this.users.length == 0 && this.userIndex.length == 0){
+        this.removeParticipant();
+      }
     });
  
   }
@@ -148,10 +151,19 @@ export class AppComponent implements OnInit {
       await this.agoraEngine.subscribe(user, mediaType);
       if (mediaType === "video") {
         if(user._videoTrack){
-          console.log('User Added')
+          const uid = (parseInt(user.uid))-1;
+          const find = this.userIndex.findIndex(x=>x == uid)
+          console.log('User Added', find)
           this.users.push(user)
           if(!this.screenMode)
+          {
+            console.log("Call Started");
             this.agentsCalls();
+          }
+          else{
+            console.log("Screen Share Started");
+            this.screenShare();
+          }
         }
       }
       if (mediaType == "audio")
@@ -375,6 +387,7 @@ export class AppComponent implements OnInit {
     this.agoraEngine.leave();
     this.users = [];
     this.chatButton = false;
+    this.service.stop();
   }
   scrollToBottom(): void {
     setTimeout(()=>{
