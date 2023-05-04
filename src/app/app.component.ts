@@ -182,7 +182,7 @@ export class AppComponent implements OnInit {
     debugger
     const uid = parseInt(this.screenElement.uid);
     const user = this.users.findIndex(x=>x.uid == uid)
-    this.userIndex = this.userIndex.filter(x=>x != uid)
+    //this.userIndex = this.userIndex.filter(x=>x != uid)
     const videoUid = parseInt(this.screenElement.videoUid);
     
     const screenIndex = this.userIndex.findIndex(x=>x == videoUid)
@@ -246,54 +246,77 @@ export class AppComponent implements OnInit {
     }
 
     if(this.userIndex.length == 1){
+      const userIndex = this.users.findIndex(x=>x.uid == this.userIndex[0])
       this.remoteMediaContainer1.nativeElement.style.width = "100%";
       this.remoteMediaContainer1.nativeElement.style.height = "100%";
       this.remoteMediaContainer1.nativeElement.style.position = 'absolute';
       this.remoteMediaContainer1.nativeElement.style.left = '0px';
-      users[0].videoTrack.play(this.remoteMediaContainer1.nativeElement);
+      this.users[userIndex].videoTrack.play(this.remoteMediaContainer1.nativeElement);
     }
     else if(this.userIndex.length == 2){
-      if(users.length == 1){
-        const uid = parseInt(users[0].uid);
-        const userIndex = this.userIndex.findIndex(x=>x == uid)
-        if(userIndex == 0){
-          this.remoteMediaContainer1.nativeElement.style.width = "100%";
-          this.remoteMediaContainer1.nativeElement.style.height = "50%";
-          this.remoteMediaContainer1.nativeElement.style.position = 'absolute';
-          this.remoteMediaContainer1.nativeElement.style.left = '0px';
-          this.remoteMediaContainer2.nativeElement.style.top = '0px';
-          users[0].videoTrack.play(this.remoteMediaContainer1.nativeElement);
-        }
-        else if (userIndex == 1){
-          this.remoteMediaContainer2.nativeElement.style.height = "50%";
-          this.remoteMediaContainer2.nativeElement.style.width = "100%";
-          this.remoteMediaContainer2.nativeElement.style.position = 'absolute';
-          this.remoteMediaContainer2.nativeElement.style.left = '0px';
-          this.remoteMediaContainer2.nativeElement.style.top = '50%';
-          users[0].videoTrack.play(this.remoteMediaContainer2.nativeElement);
-        }
-      }
-      else if(users.length == 2){
-        
-        const uid1 = parseInt(this.userIndex[0]);
-        const userIndex1 = users.findIndex(x=>x.uid == uid1)
-        const uid2 = parseInt(this.userIndex[1]);
-        const userIndex2 = this.users.findIndex(x=>x.uid == uid2)
-        
+
+      const userIndex1 = this.users.findIndex(x=>x.uid == this.userIndex[0]);
+      const userIndex2 = this.users.findIndex(x=>x.uid == this.userIndex[1]);
+
+      if(userIndex1>=0){
         this.remoteMediaContainer1.nativeElement.style.width = "100%";
         this.remoteMediaContainer1.nativeElement.style.height = "50%";
         this.remoteMediaContainer1.nativeElement.style.position = 'absolute';
         this.remoteMediaContainer1.nativeElement.style.left = '0px';
-        this.remoteMediaContainer2.nativeElement.style.top = '0px';
-        users[userIndex1].videoTrack.play(this.remoteMediaContainer1.nativeElement);
+        this.users[userIndex1].videoTrack.play(this.remoteMediaContainer1.nativeElement);
+      }
+      if(userIndex2>=0){
         this.remoteMediaContainer2.nativeElement.style.height = "50%";
         this.remoteMediaContainer2.nativeElement.style.width = "100%";
-        this.remoteMediaContainer2.nativeElement.style.height = "50%";
         this.remoteMediaContainer2.nativeElement.style.position = 'absolute';
         this.remoteMediaContainer2.nativeElement.style.left = '0px';
         this.remoteMediaContainer2.nativeElement.style.top = '50%';
-        users[userIndex2].videoTrack.play(this.remoteMediaContainer2.nativeElement);
+        this.users[userIndex2].videoTrack.play(this.remoteMediaContainer2.nativeElement);
       }
+
+
+
+      // if(users.length == 1){
+      //   const uid = parseInt(users[0].uid);
+      //   const userIndex = this.userIndex.findIndex(x=>x == uid)
+      //   if(userIndex == 0){
+      //     this.remoteMediaContainer1.nativeElement.style.width = "100%";
+      //     this.remoteMediaContainer1.nativeElement.style.height = "50%";
+      //     this.remoteMediaContainer1.nativeElement.style.position = 'absolute';
+      //     this.remoteMediaContainer1.nativeElement.style.left = '0px';
+      //     this.remoteMediaContainer1.nativeElement.style.top = '0px';
+      //     users[0].videoTrack.play(this.remoteMediaContainer1.nativeElement);
+      //   }
+      //   else if (userIndex == 1){
+      //     this.remoteMediaContainer2.nativeElement.style.height = "50%";
+      //     this.remoteMediaContainer2.nativeElement.style.width = "100%";
+      //     this.remoteMediaContainer2.nativeElement.style.position = 'absolute';
+      //     this.remoteMediaContainer2.nativeElement.style.left = '0px';
+      //     this.remoteMediaContainer2.nativeElement.style.top = '50%';
+      //     users[0].videoTrack.play(this.remoteMediaContainer2.nativeElement);
+      //   }
+      // }
+      // else if(users.length == 2){
+        
+      //   const uid1 = parseInt(this.userIndex[0]);
+      //   const userIndex1 = users.findIndex(x=>x.uid == uid1)
+      //   const uid2 = parseInt(this.userIndex[1]);
+      //   const userIndex2 = this.users.findIndex(x=>x.uid == uid2)
+        
+      //   this.remoteMediaContainer1.nativeElement.style.width = "100%";
+      //   this.remoteMediaContainer1.nativeElement.style.height = "50%";
+      //   this.remoteMediaContainer1.nativeElement.style.position = 'absolute';
+      //   this.remoteMediaContainer1.nativeElement.style.left = '0px';
+      //   this.remoteMediaContainer2.nativeElement.style.top = '0px';
+      //   users[userIndex1].videoTrack.play(this.remoteMediaContainer1.nativeElement);
+      //   this.remoteMediaContainer2.nativeElement.style.height = "50%";
+      //   this.remoteMediaContainer2.nativeElement.style.width = "100%";
+      //   this.remoteMediaContainer2.nativeElement.style.height = "50%";
+      //   this.remoteMediaContainer2.nativeElement.style.position = 'absolute';
+      //   this.remoteMediaContainer2.nativeElement.style.left = '0px';
+      //   this.remoteMediaContainer2.nativeElement.style.top = '50%';
+      //   users[userIndex2].videoTrack.play(this.remoteMediaContainer2.nativeElement);
+      // }
     }
   }
   getAccessToken(){
