@@ -14,7 +14,12 @@ export class SocketService {
   
   constructor(private socket: Socket) { }
   async connectSocket() {
+    console.log('called')
     await this.socket.emit('Connected');
+  }
+
+  async disConnectSocket() {
+    await this.socket.emit('disConnected');
   }
 
   callRequestToAgent(obj:any){

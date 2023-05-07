@@ -12,11 +12,7 @@ export class SpeechRecognitionService {
   private text = '';
   socketId:any;
   tempWords!: string;
-  constructor(
-    private socketService: SocketService) { 
-      
-      this.socketService.connectSocket()
-    }
+  constructor(private socketService: SocketService) {}
 
   init(id:any) {
     this.socketId = id;

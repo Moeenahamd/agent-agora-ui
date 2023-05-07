@@ -88,6 +88,13 @@ export class AppComponent implements OnInit {
   ngOnInit(): void {
     (this.el.nativeElement as HTMLElement).style.setProperty('--vh', window.innerHeight.toString()+"px");
     this.toastr.overlayContainer = this.toastContainer;
+    this.twilioService.getAgentImage().subscribe((doc:any) => {
+      this.agentImage = doc.img;
+    });
+ 
+  }
+
+  initSocket(){
     this.socketService.connectSocket()
     this.socketService.screenShareStarted.subscribe((doc:any) => {
       this.screenMode = true;
@@ -95,14 +102,15 @@ export class AppComponent implements OnInit {
       console.log(doc);
       console.log("Screen Share Started");
       this.screenElement = doc;
-      //this.screenShare();
     });
+
     this.socketService.screenShareStopped.subscribe((doc:any) => {
       this.removeScreen();
       this.visibleCheck = false;
       console.log("Screen Share Stoped");
       //this.agentsCalls();
     });
+
     this.socketService.agentAcceptedCall.subscribe((doc:any) => {
       this.loading = false;
       this.live =true;
@@ -116,12 +124,11 @@ export class AppComponent implements OnInit {
       this.agentImage = doc.image;
       this.socketService.userCallAccept(doc);
     });
+
     this.socketService.agentTransferCallEstablished.subscribe((doc:any) => {
       this.userIndex.push(doc.videoUid);
     })
-    this.twilioService.getAgentImage().subscribe((doc:any) => {
-      this.agentImage = doc.img;
-    });
+
     this.socketService.messageReceived.subscribe((doc:any) => {
       const payload ={
         'message':doc.message,
@@ -130,6 +137,7 @@ export class AppComponent implements OnInit {
       this.messages.push(payload)
       this.scrollToBottom();
     });
+
     this.socketService.agentDisconnected.subscribe((doc:any) => {
       console.log(doc)
       this.userIndex = this.userIndex.filter(x=> x != doc.uid);
@@ -139,7 +147,7 @@ export class AppComponent implements OnInit {
         this.removeParticipant();
       }
     });
- 
+
   }
   payload:any;
   agoraEngine:any
@@ -215,19 +223,9 @@ export class AppComponent implements OnInit {
     this.fullScreenContainer.nativeElement.style.height = "100%";
     this.fullScreenContainer.nativeElement.style.position = 'absolute';
     this.users[user].videoTrack.play(this.fullScreenContainer.nativeElement);
-
-    this.screenMode = false;
   }
   minScreen(){
     this.fullScreenMode  = false;
-    this.screenMode = true;
-    
-    const uid = parseInt(this.screenElement.uid);
-    const user = this.users.findIndex(x=>x.uid == uid)
-    this.remoteScreenContainer.nativeElement.style.width = "100%";
-    this.remoteScreenContainer.nativeElement.style.height = "100%";
-    this.remoteScreenContainer.nativeElement.style.position = 'absolute';
-    this.users[user].videoTrack.play(this.remoteScreenContainer.nativeElement);
   }
 
   removeScreen(){
@@ -320,6 +318,7 @@ export class AppComponent implements OnInit {
     }
   }
   getAccessToken(){
+    this.initSocket()
     this.chatButton = true;
     this.loading = true;
     this.roomName = UUID.UUID()
@@ -411,6 +410,7 @@ export class AppComponent implements OnInit {
     this.users = [];
     this.chatButton = false;
     this.service.stop();
+    this.socketService.disConnectSocket()
   }
   scrollToBottom(): void {
     setTimeout(()=>{
