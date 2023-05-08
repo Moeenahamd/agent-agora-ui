@@ -226,6 +226,7 @@ export class AppComponent implements OnInit {
   }
   minScreen(){
     this.fullScreenMode  = false;
+    this.screenShare();
   }
 
   removeScreen(){

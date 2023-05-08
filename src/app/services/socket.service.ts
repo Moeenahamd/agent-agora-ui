@@ -19,7 +19,7 @@ export class SocketService {
   }
 
   async disConnectSocket() {
-    await this.socket.emit('disConnected');
+    await this.socket.emit('userDisconnect');
   }
 
   callRequestToAgent(obj:any){
