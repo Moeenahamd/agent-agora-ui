@@ -108,7 +108,7 @@ export class AppComponent implements OnInit {
       this.removeScreen();
       this.visibleCheck = false;
       console.log("Screen Share Stoped");
-      this.agentsCalls();
+      //this.agentsCalls();
     });
 
     this.socketService.agentAcceptedCall.subscribe((doc:any) => {
@@ -409,6 +409,7 @@ export class AppComponent implements OnInit {
     this.socketService.callDicconnected(this.userSid)
     this.agoraEngine.leave();
     this.users = [];
+    this.messages = [];
     this.chatButton = false;
     this.service.stop();
     this.socketService.disConnectSocket()
