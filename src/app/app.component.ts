@@ -108,7 +108,7 @@ export class AppComponent implements OnInit {
       this.removeScreen();
       this.visibleCheck = false;
       console.log("Screen Share Stoped");
-      //this.agentsCalls();
+      this.agentsCalls();
     });
 
     this.socketService.agentAcceptedCall.subscribe((doc:any) => {
