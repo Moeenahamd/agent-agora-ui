@@ -117,7 +117,10 @@ export class AppComponent implements OnInit {
       this.agentName = doc.agentName
       this.userSid = doc.userUid;
       
-      this.userIndex.push(doc.videoUid);
+      console.log("Agent Added");
+      if(this.userIndex.indexOf(doc.videoUid) === -1) {
+        this.userIndex.push(doc.videoUid);
+      }
       if(doc.avatar && doc.avatar != ""){
         this.avatar = doc.avatar;
       }
@@ -234,6 +237,7 @@ export class AppComponent implements OnInit {
     this.screenMode = false;
   }
   agentsCalls(){
+    console.log(this.userIndex)
     debugger
     var users = [];
     if(this.screenElement){
@@ -341,6 +345,7 @@ export class AppComponent implements OnInit {
         conversationSID: data.conversationRoom.sid
       }
       this.timer();
+      console.log("called --- 346")
       this.socketService.callRequestToAgent(this.payload);
     })
   }
@@ -405,13 +410,17 @@ export class AppComponent implements OnInit {
     }
   }
   removeParticipant(){
+    debugger
+    this.service.stop();
+    this.audioMode = false;
+    this.localAudioTracks.close();
     console.log('CallDicconnected Called')
     this.socketService.callDicconnected(this.userSid)
     this.agoraEngine.leave();
     this.users = [];
     this.messages = [];
+    this.userIndex = [];
     this.chatButton = false;
-    this.service.stop();
     this.socketService.disConnectSocket()
   }
   scrollToBottom(): void {
