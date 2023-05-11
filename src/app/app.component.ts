@@ -135,6 +135,7 @@ export class AppComponent implements OnInit {
     })
 
     this.socketService.messageReceived.subscribe((doc:any) => {
+      console.log('Message Recieved')
       const payload ={
         'message':doc.message,
         'agentName':doc.agentName? doc.agentName:'Test'
@@ -158,7 +159,7 @@ export class AppComponent implements OnInit {
   agoraEngine:any
   async initAgoraClient(){
     this.agoraEngine = AgoraRTC.createClient({ mode: "rtc", codec: "vp8" });
-    await this.agoraEngine.join(this.options.appId, this.makeid(), this.options.token, this.options.uid); 
+    await this.agoraEngine.join(this.options.appId, this.options.channel,this.options.token, this.options.uid); 
     this.agoraEngine.on("user-published", async (user:any, mediaType:any) =>
     {
       await this.agoraEngine.subscribe(user, mediaType);
