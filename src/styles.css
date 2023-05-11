@@ -17,8 +17,8 @@ body {
 
 .chat-btn {
     position: absolute;
-    right: 14px;
-    bottom: 20px;
+    right: 2.5vh;
+    bottom: 2.5vh;
     cursor: pointer
 }
 
@@ -65,13 +65,6 @@ button {
 .form-control:focus,
 .btn:focus {
     box-shadow: none
-}
-
-.btn,
-.btn:focus,
-.btn:hover {
-    background-color: blue;
-    border: blue
 }
 
 #check {

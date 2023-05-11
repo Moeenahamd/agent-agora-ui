@@ -62,6 +62,8 @@ export class AppComponent implements OnInit {
       remoteUid: null,
   };
   userSid:any;
+  localUser = '';
+  randomUsers = ['Angelicks', 'Animeis','Bristleco','ChosenSan','Comarq','Comicomit','CommentGravity','Cornymo','Dazzler']
   screenElement:any;
   videoToken:any;
   visibleCheck = false;
@@ -91,7 +93,7 @@ export class AppComponent implements OnInit {
     this.twilioService.getAgentImage().subscribe((doc:any) => {
       this.agentImage = doc.img;
     });
- 
+    this.localUser = this.randomUsers[Math.floor(Math.random() * 8)]
   }
 
   initSocket(){
@@ -276,50 +278,6 @@ export class AppComponent implements OnInit {
         this.remoteMediaContainer2.nativeElement.style.top = '50%';
         this.users[userIndex2].videoTrack.play(this.remoteMediaContainer2.nativeElement);
       }
-
-
-
-      // if(users.length == 1){
-      //   const uid = parseInt(users[0].uid);
-      //   const userIndex = this.userIndex.findIndex(x=>x == uid)
-      //   if(userIndex == 0){
-      //     this.remoteMediaContainer1.nativeElement.style.width = "100%";
-      //     this.remoteMediaContainer1.nativeElement.style.height = "50%";
-      //     this.remoteMediaContainer1.nativeElement.style.position = 'absolute';
-      //     this.remoteMediaContainer1.nativeElement.style.left = '0px';
-      //     this.remoteMediaContainer1.nativeElement.style.top = '0px';
-      //     users[0].videoTrack.play(this.remoteMediaContainer1.nativeElement);
-      //   }
-      //   else if (userIndex == 1){
-      //     this.remoteMediaContainer2.nativeElement.style.height = "50%";
-      //     this.remoteMediaContainer2.nativeElement.style.width = "100%";
-      //     this.remoteMediaContainer2.nativeElement.style.position = 'absolute';
-      //     this.remoteMediaContainer2.nativeElement.style.left = '0px';
-      //     this.remoteMediaContainer2.nativeElement.style.top = '50%';
-      //     users[0].videoTrack.play(this.remoteMediaContainer2.nativeElement);
-      //   }
-      // }
-      // else if(users.length == 2){
-        
-      //   const uid1 = parseInt(this.userIndex[0]);
-      //   const userIndex1 = users.findIndex(x=>x.uid == uid1)
-      //   const uid2 = parseInt(this.userIndex[1]);
-      //   const userIndex2 = this.users.findIndex(x=>x.uid == uid2)
-        
-      //   this.remoteMediaContainer1.nativeElement.style.width = "100%";
-      //   this.remoteMediaContainer1.nativeElement.style.height = "50%";
-      //   this.remoteMediaContainer1.nativeElement.style.position = 'absolute';
-      //   this.remoteMediaContainer1.nativeElement.style.left = '0px';
-      //   this.remoteMediaContainer2.nativeElement.style.top = '0px';
-      //   users[userIndex1].videoTrack.play(this.remoteMediaContainer1.nativeElement);
-      //   this.remoteMediaContainer2.nativeElement.style.height = "50%";
-      //   this.remoteMediaContainer2.nativeElement.style.width = "100%";
-      //   this.remoteMediaContainer2.nativeElement.style.height = "50%";
-      //   this.remoteMediaContainer2.nativeElement.style.position = 'absolute';
-      //   this.remoteMediaContainer2.nativeElement.style.left = '0px';
-      //   this.remoteMediaContainer2.nativeElement.style.top = '50%';
-      //   users[userIndex2].videoTrack.play(this.remoteMediaContainer2.nativeElement);
-      // }
     }
   }
   getAccessToken(){
@@ -410,10 +368,11 @@ export class AppComponent implements OnInit {
     }
   }
   removeParticipant(){
-    debugger
     this.service.stop();
     this.audioMode = false;
-    this.localAudioTracks.close();
+    if(this.audioMode){
+      this.localAudioTracks.close();
+    }
     console.log('CallDicconnected Called')
     this.socketService.callDicconnected(this.userSid)
     this.agoraEngine.leave();
@@ -444,5 +403,8 @@ export class AppComponent implements OnInit {
         }
       }
     }, 1000);
+  }
+  close(){
+    this.chatButton = false;
   }
 }
