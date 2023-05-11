@@ -158,7 +158,7 @@ export class AppComponent implements OnInit {
   agoraEngine:any
   async initAgoraClient(){
     this.agoraEngine = AgoraRTC.createClient({ mode: "rtc", codec: "vp8" });
-    await this.agoraEngine.join(this.options.appId, this.options.channel,this.options.token, this.options.uid); 
+    await this.agoraEngine.join(this.options.appId, this.makeid(), this.options.token, this.options.uid); 
     this.agoraEngine.on("user-published", async (user:any, mediaType:any) =>
     {
       await this.agoraEngine.subscribe(user, mediaType);
@@ -406,5 +406,16 @@ export class AppComponent implements OnInit {
   }
   close(){
     this.chatButton = false;
+  }
+  makeid() {
+    let result = '';
+    const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
+    const charactersLength = characters.length;
+    let counter = 0;
+    while (counter < 15) {
+      result += characters.charAt(Math.floor(Math.random() * charactersLength));
+      counter += 1;
+    }
+    return result;
   }
 }
