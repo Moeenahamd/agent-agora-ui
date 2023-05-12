@@ -162,6 +162,8 @@ export class AppComponent implements OnInit {
     await this.agoraEngine.join(this.options.appId, this.options.channel,this.options.token, this.options.uid); 
     this.agoraEngine.on("user-published", async (user:any, mediaType:any) =>
     {
+      
+      console.log("Publich Called",user);
       await this.agoraEngine.subscribe(user, mediaType);
       if (mediaType === "video") {
         if(user._videoTrack){
@@ -169,7 +171,7 @@ export class AppComponent implements OnInit {
           const find = this.userIndex.findIndex(x=>x == uid)
           console.log('User Added', find)
           this.users.push(user)
-          if(!this.screenMode)
+          if(find == -1)
           {
             console.log("Call Started");
             this.agentsCalls();
