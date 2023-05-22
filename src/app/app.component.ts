@@ -200,18 +200,20 @@ export class AppComponent implements OnInit {
     const user = this.users.findIndex(x=>x.uid == uid)
     //this.userIndex = this.userIndex.filter(x=>x != uid)
     const videoUid = parseInt(this.screenElement.videoUid);
-    
     const screenIndex = this.userIndex.findIndex(x=>x == videoUid)
+    console.log(uid, user, videoUid, screenIndex ,this.userIndex.length)
     if(screenIndex == 0 && this.userIndex.length == 1){
       this.remoteScreenContainer.nativeElement.style.width = "100%";
       this.remoteScreenContainer.nativeElement.style.height = "100%";
       this.remoteScreenContainer.nativeElement.style.position = 'absolute';
+      this.remoteScreenContainer.nativeElement.style.top = '0%';
       this.users[user].videoTrack.play(this.remoteScreenContainer.nativeElement);
     }
     else if(screenIndex == 0 && this.userIndex.length == 2){
       this.remoteScreenContainer.nativeElement.style.width = "100%";
       this.remoteScreenContainer.nativeElement.style.height = "50%";
       this.remoteScreenContainer.nativeElement.style.position = 'absolute';
+      this.remoteScreenContainer.nativeElement.style.top = '0%';
       this.users[user].videoTrack.play(this.remoteScreenContainer.nativeElement);
     }
     else{
