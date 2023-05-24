@@ -31,7 +31,7 @@ export class AppComponent implements OnInit {
   avatar:any = "https://static.turbosquid.com/Preview/001292/481/WV/_D.jpg";
   options = {
     appId: "10cd14249e254391817d2b2ee69ae4ff",  // set your appid here
-    channel: "ViewProProduction", // Set the channel name.
+    channel: UUID.UUID(), // Set the channel name.
     token: '8ee0cc8992714c22bc4622613c06e413', // Pass a token if your project enables the App Certificate.
     uid: Math.floor((Math.random() * 1000) + 1)
   };
@@ -198,7 +198,6 @@ export class AppComponent implements OnInit {
     debugger
     const uid = parseInt(this.screenElement.uid);
     const user = this.users.findIndex(x=>x.uid == uid)
-    //this.userIndex = this.userIndex.filter(x=>x != uid)
     const videoUid = parseInt(this.screenElement.videoUid);
     const screenIndex = this.userIndex.findIndex(x=>x == videoUid)
     console.log(uid, user, videoUid, screenIndex ,this.userIndex.length)
@@ -289,7 +288,7 @@ export class AppComponent implements OnInit {
     this.initSocket()
     this.chatButton = true;
     this.loading = true;
-    this.roomName = UUID.UUID()
+    this.roomName = UUID.UUID();
     const socketObj=this.socketService.getSocket();
     this.localParticipant = socketObj.ioSocket.id;
     
@@ -344,6 +343,7 @@ export class AppComponent implements OnInit {
   }
 
   callRequest(){
+    this.timer();
     this.socketService.callRequestToAgent(this.payload);
     this.loading = true;
     this.showButton = false;
