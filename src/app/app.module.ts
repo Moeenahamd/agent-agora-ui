@@ -20,7 +20,6 @@ const config: SocketIoConfig = { url: 'https://viewpro.com', options: {} };
     AppRoutingModule,
     FormsModule,
     NgxLoadingModule.forRoot({}),
-    SocketIoModule.forRoot(config),
     BrowserAnimationsModule, // required animations module
     ToastrModule.forRoot({
       

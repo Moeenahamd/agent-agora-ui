@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
+import { UUID } from 'angular2-uuid';
 @Injectable({
   providedIn: 'root'
 })
@@ -14,10 +15,10 @@ export class TwilioService {
     }
     return this.http.post('https://viewpro.com/api/userRoutes/conversationAndVideoRoom',obj);
   }
-  getAgoraToken(userName:number, id:any) {
-    const obj ={
+  getAgoraToken(userName:number, channel:any) {
+    let obj ={
       "userUid": userName,
-      "channelName": "ViewProProduction",
+      "channelName": channel,
       "role": 0
     }
     return this.http.post('https://viewpro.com/api/agentRoutes/agoraToken',obj);

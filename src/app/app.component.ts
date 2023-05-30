@@ -96,9 +96,17 @@ export class AppComponent implements OnInit {
     this.localUser = this.randomUsers[Math.floor(Math.random() * 8)]
   }
 
-  initSocket(){
+  async initSocket(){
+    await this.socketService.initSocket();
+    await this.socketService.getSocketConnection().subscribe((doc:any) => {
+      if(doc)
+      {
+        this.localParticipant = doc;
+        this.getAccessToken()
+      }
+    });
     this.socketService.connectSocket()
-    this.socketService.screenShareStarted.subscribe((doc:any) => {
+    this.socketService.getStartScreenShare().subscribe((doc:any) => {
       this.screenMode = true;
       this.visibleCheck = true;
       console.log(doc);
@@ -106,35 +114,38 @@ export class AppComponent implements OnInit {
       this.screenElement = doc;
     });
 
-    this.socketService.screenShareStopped.subscribe((doc:any) => {
+    this.socketService.getStopScreenShare().subscribe((doc:any) => {
       this.removeScreen();
       this.visibleCheck = false;
       console.log("Screen Share Stoped");
       //this.agentsCalls();
     });
 
-    this.socketService.agentAcceptedCall.subscribe((doc:any) => {
-      this.loading = false;
-      this.live =true;
-      this.agentName = doc.agentName
-      this.userSid = doc.userUid;
-      
-      console.log("Agent Added");
-      if(this.userIndex.indexOf(doc.videoUid) === -1) {
-        this.userIndex.push(doc.videoUid);
+    this.socketService.getCallRequestAccepted().subscribe((doc:any) => {
+      if(doc){
+        console.log(doc);
+        this.loading = false;
+        this.live =true;
+        this.agentName = doc.agentName
+        this.userSid = doc.userUid;
+        
+        console.log("Agent Added");
+        if(this.userIndex.indexOf(doc.videoUid) === -1) {
+          this.userIndex.push(doc.videoUid);
+        }
+        if(doc.avatar && doc.avatar != ""){
+          this.avatar = doc.avatar;
+        }
+        this.agentImage = doc.image;
+        this.socketService.userCallAccept(doc);
       }
-      if(doc.avatar && doc.avatar != ""){
-        this.avatar = doc.avatar;
-      }
-      this.agentImage = doc.image;
-      this.socketService.userCallAccept(doc);
     });
 
-    this.socketService.agentTransferCallEstablished.subscribe((doc:any) => {
+    this.socketService.getAgentTransferCallEstablished().subscribe((doc:any) => {
       this.userIndex.push(doc.videoUid);
     })
 
-    this.socketService.messageReceived.subscribe((doc:any) => {
+    this.socketService.getMessageReceived().subscribe((doc:any) => {
       console.log('Message Recieved')
       const payload ={
         'message':doc.message,
@@ -144,7 +155,7 @@ export class AppComponent implements OnInit {
       this.scrollToBottom();
     });
 
-    this.socketService.agentDisconnected.subscribe((doc:any) => {
+    this.socketService.getAgentDisconnected().subscribe((doc:any) => {
       console.log(doc)
       this.userIndex = this.userIndex.filter(x=> x != doc.uid);
       this.agentsCalls();
@@ -159,6 +170,7 @@ export class AppComponent implements OnInit {
   agoraEngine:any
   async initAgoraClient(){
     this.agoraEngine = AgoraRTC.createClient({ mode: "rtc", codec: "vp8" });
+    console.log(this.options)
     await this.agoraEngine.join(this.options.appId, this.options.channel,this.options.token, this.options.uid); 
     this.agoraEngine.on("user-published", async (user:any, mediaType:any) =>
     {
@@ -284,30 +296,27 @@ export class AppComponent implements OnInit {
       }
     }
   }
+  
+  
   getAccessToken(){
-    this.initSocket()
     this.chatButton = true;
     this.loading = true;
     this.roomName = UUID.UUID();
-    const socketObj=this.socketService.getSocket();
-    this.localParticipant = socketObj.ioSocket.id;
-    
-    this.twilioService.getAgoraToken(this.options.uid, this.localParticipant).subscribe((data:any)=>{
-      this.options.channel = data.channelName;
+    this.twilioService.getAgoraToken(this.options.uid, this.options.channel).subscribe((data:any)=>{
       this.options.token = data.tokenA;
       this.initAgoraClient();
-      this.service.init(socketObj.ioSocket.id)
+      this.service.init(this.localParticipant)
     })
-    this.twilioService.getAccessToken(socketObj.ioSocket.id+this.roomName,this.roomName).subscribe((data:any)=>{
+    this.twilioService.getAccessToken(this.localParticipant+this.roomName,this.roomName).subscribe((data:any)=>{
       this.conversationToken = data.conversationRoomAccessToken;
       this.videoToken = data.videoRoomAccessToken;
       this.payload ={
-        userSid:this.socketService.id,
-        roomName: this.roomName,
+        userSid: this.localParticipant,
+        channelName: this.options.channel,
         conversationSID: data.conversationRoom.sid
       }
       this.timer();
-      console.log("called --- 346")
+      console.log("called --- 346",this.payload)
       this.socketService.callRequestToAgent(this.payload);
     })
   }

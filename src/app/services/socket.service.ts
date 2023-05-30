@@ -1,18 +1,93 @@
 import { Injectable } from '@angular/core';
 import { Socket } from 'ngx-socket-io';
+import { io } from "socket.io-client";
+
+import { BehaviorSubject, Observable } from 'rxjs';
 @Injectable({
   providedIn: 'root'
 })
 export class SocketService {
   id:any;
-  agentAcceptedCall = this.socket.fromEvent('CallRequestAccepted');
-  screenShareStarted = this.socket.fromEvent('screenShareStarted');
-  screenShareStopped = this.socket.fromEvent('screenShareStopped');
-  messageReceived = this.socket.fromEvent('agentMessage');
-  agentDisconnected = this.socket.fromEvent('agentLeavedConversationRoom');
-  agentTransferCallEstablished = this.socket.fromEvent('AgentTransferCallEstablished');
+  socket:any;
   
-  constructor(private socket: Socket) { }
+  agentAcceptedCall : BehaviorSubject<string> = new BehaviorSubject('');
+  socketConnection : BehaviorSubject<string> = new BehaviorSubject('');
+  screenShareStarted : BehaviorSubject<string> = new BehaviorSubject('');
+  screenShareStopped : BehaviorSubject<string> = new BehaviorSubject('');
+  messageReceived : BehaviorSubject<string> = new BehaviorSubject('');
+  agentDisconnected : BehaviorSubject<string> = new BehaviorSubject('');
+  agentTransferCallEstablished : BehaviorSubject<string> = new BehaviorSubject('');
+  
+  constructor() { 
+    
+  }
+  async initSocket(){
+    this.socket = io('https://viewpro.com');
+  }
+
+  getMessageReceived = () => {
+    this.socket.on('agentMessage', (message:any) =>{
+      console.log(message)
+      this.messageReceived.next(message);
+    });
+
+    return this.messageReceived.asObservable();
+  };
+
+  getAgentDisconnected = () => {
+    this.socket.on('agentLeavedConversationRoom', (message:any) =>{
+      console.log(message)
+      this.agentDisconnected.next(message);
+    });
+
+    return this.agentDisconnected.asObservable();
+  };
+
+  getAgentTransferCallEstablished = () => {
+    this.socket.on('AgentTransferCallEstablished', (message:any) =>{
+      console.log(message)
+      this.agentTransferCallEstablished.next(message);
+    });
+
+    return this.agentTransferCallEstablished.asObservable();
+  };
+
+  getCallRequestAccepted = () => {
+    this.socket.on('CallRequestAccepted', (message:any) =>{
+      console.log(message)
+      this.agentAcceptedCall.next(message);
+    });
+
+    return this.agentAcceptedCall.asObservable();
+  };
+
+  getSocketConnection = () => {
+    this.socket.on('connect', (message:any) =>{
+
+      this.socketConnection.next(this.socket.id);
+    });
+
+    return this.socketConnection.asObservable();
+  };
+
+  getStartScreenShare = () => {
+    this.socket.on('screenShareStarted', (resp:any) =>{
+
+      this.screenShareStarted.next(resp);
+    });
+
+    return this.screenShareStarted.asObservable();
+  };
+
+  getStopScreenShare = () => {
+    this.socket.on('screenShareStopped', (resp:any) =>{
+
+      this.screenShareStopped.next(resp);
+    });
+
+    return this.screenShareStopped.asObservable();
+  };
+  
   async connectSocket() {
     console.log('called')
     await this.socket.emit('Connected');

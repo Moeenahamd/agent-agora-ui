@@ -1,6 +1,6 @@
   <!-- <button id="join-button" (click)="onJoinClick()">Join Room</button> -->
   <input type="checkbox" id="check"> 
-	<label class="chat-btn" for="check" *ngIf="!chatButton" (click)="getAccessToken()">
+	<label class="chat-btn" for="check" *ngIf="!chatButton" (click)="initSocket()">
 		<img  src="../assets/instagram.gif" style="border-radius: 50%;">
 	</label>
   <div [hidden]="!fullScreenMode" class="fullScreen" style="position: absolute;width: 100%;height: 100%;">
