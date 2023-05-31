@@ -72,9 +72,6 @@ export class AppComponent implements OnInit {
   message:any;
   agentCount =0;
   users:any[] =[];
-  callUsers:any[] =[];
-  screenUsers:any[] =[];
-  videos:any[] = [];
   showButton = false;
   userIndex:any[] = []
   messages:any[]=[];
@@ -90,35 +87,42 @@ export class AppComponent implements OnInit {
   ngOnInit(): void {
     (this.el.nativeElement as HTMLElement).style.setProperty('--vh', window.innerHeight.toString()+"px");
     this.toastr.overlayContainer = this.toastContainer;
-    this.twilioService.getAgentImage().subscribe((doc:any) => {
-      this.agentImage = doc.img;
-    });
+    // this.twilioService.getAgentImage().subscribe((doc:any) => {
+    //   this.agentImage = doc.img;
+    // });
     this.localUser = this.randomUsers[Math.floor(Math.random() * 8)]
   }
 
   async initSocket(){
     await this.socketService.initSocket();
     await this.socketService.getSocketConnection().subscribe((doc:any) => {
-      if(doc)
+      if(doc && doc != this.localParticipant)
       {
         this.localParticipant = doc;
+        console.log(doc)
         this.getAccessToken()
       }
     });
-    this.socketService.connectSocket()
     this.socketService.getStartScreenShare().subscribe((doc:any) => {
-      this.screenMode = true;
-      this.visibleCheck = true;
-      console.log(doc);
-      console.log("Screen Share Started");
-      this.screenElement = doc;
+      if(doc)
+      {
+        this.screenMode = true;
+        this.visibleCheck = true;
+        console.log(doc);
+        console.log("Screen Share Started");
+        this.screenElement = doc;
+      }
     });
 
     this.socketService.getStopScreenShare().subscribe((doc:any) => {
-      this.removeScreen();
-      this.visibleCheck = false;
-      console.log("Screen Share Stoped");
-      //this.agentsCalls();
+      if(doc)
+      {
+        console.log(doc)
+        this.removeScreen();
+        this.visibleCheck = false;
+        console.log("Screen Share Stoped");
+        //this.agentsCalls();
+      }
     });
 
     this.socketService.getCallRequestAccepted().subscribe((doc:any) => {
@@ -129,7 +133,7 @@ export class AppComponent implements OnInit {
         this.agentName = doc.agentName
         this.userSid = doc.userUid;
         
-        console.log("Agent Added");
+        console.log("Agent Added", this.userIndex);
         if(this.userIndex.indexOf(doc.videoUid) === -1) {
           this.userIndex.push(doc.videoUid);
         }
@@ -142,26 +146,37 @@ export class AppComponent implements OnInit {
     });
 
     this.socketService.getAgentTransferCallEstablished().subscribe((doc:any) => {
-      this.userIndex.push(doc.videoUid);
+      if(doc)
+      {
+        console.log(doc)
+        this.userIndex.push(doc.videoUid);
+      }
     })
 
     this.socketService.getMessageReceived().subscribe((doc:any) => {
-      console.log('Message Recieved')
-      const payload ={
-        'message':doc.message,
-        'agentName':doc.agentName? doc.agentName:'Test'
+      if(doc)
+      {
+        console.log(doc)
+        console.log('Message Recieved')
+        const payload ={
+          'message':doc.message,
+          'agentName':doc.agentName? doc.agentName:'Test'
+        }
+        this.messages.push(payload)
+        this.scrollToBottom();
       }
-      this.messages.push(payload)
-      this.scrollToBottom();
     });
 
     this.socketService.getAgentDisconnected().subscribe((doc:any) => {
-      console.log(doc)
-      this.userIndex = this.userIndex.filter(x=> x != doc.uid);
-      this.agentsCalls();
-      this.toastr.success('Call disconnected or agent leaved')
-      if(this.users.length == 0 && this.userIndex.length == 0){
-        this.removeParticipant();
+      if(doc)
+      {
+        console.log(doc)
+        this.userIndex = this.userIndex.filter(x=> x != doc.uid);
+        this.agentsCalls();
+        this.toastr.success('Call disconnected or agent leaved')
+        if(this.users.length == 0 && this.userIndex.length == 0){
+          this.removeParticipant();
+        }
       }
     });
 
@@ -172,6 +187,15 @@ export class AppComponent implements OnInit {
     this.agoraEngine = AgoraRTC.createClient({ mode: "rtc", codec: "vp8" });
     console.log(this.options)
     await this.agoraEngine.join(this.options.appId, this.options.channel,this.options.token, this.options.uid); 
+    
+    this.payload ={
+      userSid: this.localParticipant,
+      channelName: this.options.channel,
+      conversationSID: ''
+    }
+    this.timer();
+    console.log("called --- 346",this.payload)
+    this.socketService.callRequestToAgent(this.payload);
     this.agoraEngine.on("user-published", async (user:any, mediaType:any) =>
     {
       
@@ -302,22 +326,12 @@ export class AppComponent implements OnInit {
     this.chatButton = true;
     this.loading = true;
     this.roomName = UUID.UUID();
+    this.options.uid = Math.floor((Math.random() * 1000) + 1);
+    this.options.channel = UUID.UUID();
     this.twilioService.getAgoraToken(this.options.uid, this.options.channel).subscribe((data:any)=>{
       this.options.token = data.tokenA;
       this.initAgoraClient();
       this.service.init(this.localParticipant)
-    })
-    this.twilioService.getAccessToken(this.localParticipant+this.roomName,this.roomName).subscribe((data:any)=>{
-      this.conversationToken = data.conversationRoomAccessToken;
-      this.videoToken = data.videoRoomAccessToken;
-      this.payload ={
-        userSid: this.localParticipant,
-        channelName: this.options.channel,
-        conversationSID: data.conversationRoom.sid
-      }
-      this.timer();
-      console.log("called --- 346",this.payload)
-      this.socketService.callRequestToAgent(this.payload);
     })
   }
   async unMuteVideo(){
@@ -387,14 +401,15 @@ export class AppComponent implements OnInit {
     if(this.audioMode){
       this.localAudioTracks.close();
     }
-    console.log('CallDicconnected Called')
-    this.socketService.callDicconnected(this.userSid)
     this.agoraEngine.leave();
     this.users = [];
     this.messages = [];
     this.userIndex = [];
     this.chatButton = false;
-    this.socketService.disConnectSocket()
+    console.log(this.users,
+      this.messages,
+      this.userIndex)
+    this.socketService.callDicconnected(this.userSid)
   }
   scrollToBottom(): void {
     setTimeout(()=>{

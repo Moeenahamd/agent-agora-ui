@@ -69,6 +69,7 @@ export class SocketService {
 
     return this.socketConnection.asObservable();
   };
+  
 
   getStartScreenShare = () => {
     this.socket.on('screenShareStarted', (resp:any) =>{
@@ -113,8 +114,10 @@ export class SocketService {
     this.socket.emit('userSendMessage',obj);
   }
   callDicconnected(obj:any){
-    console.log('callDicconnected')
+    console.log('callDicconnec')
     this.socket.emit('UserDisconnect',obj);
+    this.socket.disconnect();
+    console.log('callDicconnected')
   }
   getSocket(){
     return this.socket;
