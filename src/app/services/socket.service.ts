@@ -114,7 +114,14 @@ export class SocketService {
     this.socket.emit('userSendMessage',obj);
   }
   callDicconnected(obj:any){
-    console.log('callDicconnec')
+    console.log('callDicconnec') 
+    this.agentAcceptedCall.next('');
+    this.socketConnection.next('');
+    this.screenShareStarted.next('');
+    this.screenShareStopped.next('');
+    this.messageReceived.next('');
+    this.agentDisconnected.next('');
+    this.agentTransferCallEstablished.next('');
     this.socket.emit('UserDisconnect',obj);
     this.socket.disconnect();
     console.log('callDicconnected')
