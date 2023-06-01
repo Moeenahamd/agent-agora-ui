@@ -446,6 +446,15 @@ export class AppComponent implements OnInit {
   }
   close(){
     this.chatButton = false;
+    this.service.stop();
+    this.agoraEngine.leave();
+    this.audioMode = false;
+    this.users = [];
+    this.messages = [];
+    this.userIndex = [];
+    this.live = false;
+    clearInterval(this.timerInterval);
+    this.socketService.callDicconnected(this.userSid)
   }
   makeid() {
     let result = '';
