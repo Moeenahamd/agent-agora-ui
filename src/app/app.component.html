@@ -21,9 +21,9 @@
       
       <div style="color:white; padding:0px 60px; font-size: 20px;">Welcome allow me to connect you to the next available agent</div>
     </div>
-    <div *ngIf="showButton" style="z-index: 5;position: absolute; top:50%; left:40%;cursor: pointer;">
+    <div *ngIf="showButton">
       <i style="font-size:32px;color:white;position: absolute; top:0px;right:10px; cursor: pointer;" (click)="close()" class="bi bi-x"></i>
-      <button (click)="callRequest()" class="btn btn-success"> Call Again</button>
+      <button (click)="callRequest()" style="z-index: 5;position: absolute; top:50%; left:40%;cursor: pointer;" class="btn btn-success"> Call Again</button>
     </div>
     
     <div class="media-container">
