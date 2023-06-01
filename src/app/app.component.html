@@ -35,7 +35,7 @@
     </div>
         
 			<div  style="z-index: 4;" *ngIf="!fullScreenMode">
-        <div style="position: relative;" class="top-bar" *ngIf="!loading">
+        <div style="position: relative;" class="top-bar" *ngIf="!loading && showIcons">
           <i style="font-size:30px;color:white;position: absolute; top:5px;left:17px;cursor: pointer;" class="bi bi-person-circle"></i>
           <span style="font-size:18px;color:white;position: absolute; top:10px;left:58px;cursor: pointer;">{{agentName}} <span *ngIf="live" style="color: white; position: absolute; padding: 2px 10px; border-radius: 5px; right: -240px; background-color: rgb(246,23,114);">LIVE</span></span>
           <i style="font-size:32px;color:white;position: absolute; top:0px;right:11px; cursor: pointer;" (click)="removeParticipant()" class="bi bi-x"></i>
@@ -46,7 +46,7 @@
           <i *ngIf="visibleCheck" style="font-size:18px;color:white; position: absolute; top:140px;right:18px;cursor: pointer;" (click)="fullScreen()" class="bi bi-arrows-fullscreen" aria-hidden="true"></i>
           <!-- <i *ngIf="visibleCheck" style="font-size:24px;color:white; position: absolute; top:185px;right:10px;cursor: pointer;" (click)="removeScreen()" class="bi bi-fullscreen-exit" aria-hidden="true"></i> -->
         </div>
-        <div *ngIf="!loading" class="messages-contect">
+        <div *ngIf="!loading && showIcons" class="messages-contect">
           <div class="wrapper1" #scrollBottom>
             <div class="content">
               <div *ngFor="let message of messages" class="d-flex justify-content-start">
@@ -69,7 +69,7 @@
             </div>
           </div> 
         </div>
-        <div class="footer" *ngIf="!fullScreenMode && !loading">
+        <div class="footer" *ngIf="!fullScreenMode && !loading && showIcons">
           <input class="form me-2  border" [disabled]="loading" (keyup.enter)="sendMessage()" [(ngModel)]="message" style="color:white;padding:10px;border-radius:50px;outline: none;width: 75%;background: none;border: 2px solid white !important;" type="text" placeholder="Add a Comment">
           <svg style="color: white;width: 45px;height: 43px; margin-left: 30px;"  (click)="sendMessage()" xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 512 512"><title>ionicons-v5-q</title><path d="M16,464,496,256,16,48V208l320,48L16,304Z" fill="white"></path></svg>
         </div>

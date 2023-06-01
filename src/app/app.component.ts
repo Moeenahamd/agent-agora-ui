@@ -78,6 +78,7 @@ export class AppComponent implements OnInit {
   videoMode = false;
   audioMode = false;
   chatButton = false;
+  showIcons = false;
   title = 'agent-ui';
   public loading = false;
   public videoPublished = false;
@@ -129,6 +130,7 @@ export class AppComponent implements OnInit {
       if(doc){
         console.log(doc);
         this.loading = false;
+        this.showIcons = true;
         this.live =true;
         this.agentName = doc.agentName
         this.userSid = doc.userUid;
@@ -162,8 +164,10 @@ export class AppComponent implements OnInit {
           'message':doc.message,
           'agentName':doc.agentName? doc.agentName:'Test'
         }
-        this.messages.push(payload)
-        this.scrollToBottom();
+        if(this.messages.length > 0 && this.messages[this.messages.length-1] != doc.message){
+          this.messages.push(payload)
+          this.scrollToBottom();
+        }
       }
     });
 
@@ -325,6 +329,8 @@ export class AppComponent implements OnInit {
   getAccessToken(){
     this.chatButton = true;
     this.loading = true;
+    this.showIcons = false;
+    this.showIcons
     this.roomName = UUID.UUID();
     this.options.uid = Math.floor((Math.random() * 1000) + 1);
     this.options.channel = UUID.UUID();
@@ -370,6 +376,7 @@ export class AppComponent implements OnInit {
     this.socketService.callRequestToAgent(this.payload);
     this.loading = true;
     this.showButton = false;
+    this.showIcons = false;
   }
 
   sendVoice(){
@@ -405,6 +412,7 @@ export class AppComponent implements OnInit {
     this.users = [];
     this.messages = [];
     this.userIndex = [];
+    this.live = false;
     this.chatButton = false;
     console.log(this.users,
       this.messages,
