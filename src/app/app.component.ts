@@ -165,6 +165,9 @@ export class AppComponent implements OnInit {
           'agentName':doc.agentName? doc.agentName:'Test'
         }
         if(this.messages.length > 0 && this.messages[this.messages.length-1] != doc.message){
+          
+        }
+        else{
           this.messages.push(payload)
           this.scrollToBottom();
         }
