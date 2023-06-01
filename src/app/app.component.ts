@@ -164,7 +164,7 @@ export class AppComponent implements OnInit {
           'message':doc.message,
           'agentName':doc.agentName? doc.agentName:'Test'
         }
-        if(this.messages.length > 0 && this.messages[this.messages.length-1] != doc.message){
+        if(this.messages.length > 0 && this.messages[this.messages.length-1] == doc.message){
           
         }
         else{
