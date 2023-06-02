@@ -324,6 +324,11 @@ export class AppComponent implements OnInit {
     this.users[user].videoTrack.play(this.fullScreenContainer.nativeElement);
   }
 
+  minScreen(){
+    this.fullScreenMode  = false;
+    this.screenShare();
+  }
+
   removeScreen(){
     this.fullScreenMode  = false;
     this.screenMode = false;
