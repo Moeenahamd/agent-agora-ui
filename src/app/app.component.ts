@@ -85,6 +85,8 @@ export class AppComponent implements OnInit {
   public audioPublished = false;
   UserlocalVideoTrack:any;
   timerInterval: any;
+  payload:any;
+  agoraEngine:any
   ngOnInit(): void {
     (this.el.nativeElement as HTMLElement).style.setProperty('--vh', window.innerHeight.toString()+"px");
     this.toastr.overlayContainer = this.toastContainer;
@@ -94,23 +96,41 @@ export class AppComponent implements OnInit {
     this.localUser = this.randomUsers[Math.floor(Math.random() * 8)]
   }
 
+  getAccessToken(){
+    this.chatButton = true;
+    this.loading = true;
+    this.showIcons = false;
+    this.showIcons
+    this.roomName = UUID.UUID();
+    this.options.uid = Math.floor((Math.random() * 1000) + 1);
+    this.options.channel = UUID.UUID();
+    this.twilioService.getAgoraToken(this.options.uid, this.options.channel).subscribe((data:any)=>{
+      this.options.token = data.tokenA;
+      this.initAgoraClient();
+      this.service.init(this.localParticipant)
+    })
+  }
+
+  callRequest(){
+    this.timer();
+    this.socketService.callRequestToAgent(this.payload);
+    this.loading = true;
+    this.showButton = false;
+    this.showIcons = false;
+  }
+
   async initSocket(){
     await this.socketService.initSocket();
     await this.socketService.getSocketConnection().subscribe((doc:any) => {
-      if(doc && doc != this.localParticipant)
-      {
+      if(doc && doc != this.localParticipant){
         this.localParticipant = doc;
-        console.log(doc)
         this.getAccessToken()
       }
     });
     this.socketService.getStartScreenShare().subscribe((doc:any) => {
-      if(doc)
-      {
+      if(doc){
         this.screenMode = true;
         this.visibleCheck = true;
-        console.log(doc);
-        console.log("Screen Share Started");
         this.screenElement = doc;
       }
     });
@@ -118,17 +138,13 @@ export class AppComponent implements OnInit {
     this.socketService.getStopScreenShare().subscribe((doc:any) => {
       if(doc)
       {
-        console.log(doc)
-        this.removeScreen();
         this.visibleCheck = false;
-        console.log("Screen Share Stoped");
-        //this.agentsCalls();
+        this.screenMode = false;
       }
     });
 
     this.socketService.getCallRequestAccepted().subscribe((doc:any) => {
       if(doc){
-        console.log(doc);
         this.loading = false;
         this.showIcons = true;
         this.live =true;
@@ -150,21 +166,17 @@ export class AppComponent implements OnInit {
     this.socketService.getAgentTransferCallEstablished().subscribe((doc:any) => {
       if(doc)
       {
-        console.log(doc)
         this.userIndex.push(doc.videoUid);
       }
     })
 
     this.socketService.getMessageReceived().subscribe((doc:any) => {
-      if(doc)
-      {
-        console.log(doc)
-        console.log('Message Recieved')
+      if(doc){
         const payload ={
           'message':doc.message,
           'agentName':doc.agentName? doc.agentName:'Test'
         }
-        if(this.messages.length > 0 && this.messages[this.messages.length-1] == doc.message){
+        if(this.messages.length > 0 && this.messages[this.messages.length-1].message == doc.message){
           
         }
         else{
@@ -175,8 +187,7 @@ export class AppComponent implements OnInit {
     });
 
     this.socketService.getAgentDisconnected().subscribe((doc:any) => {
-      if(doc)
-      {
+      if(doc){
         console.log(doc)
         this.userIndex = this.userIndex.filter(x=> x != doc.uid);
         this.agentsCalls();
@@ -188,8 +199,8 @@ export class AppComponent implements OnInit {
     });
 
   }
-  payload:any;
-  agoraEngine:any
+
+
   async initAgoraClient(){
     this.agoraEngine = AgoraRTC.createClient({ mode: "rtc", codec: "vp8" });
     console.log(this.options)
@@ -237,8 +248,43 @@ export class AppComponent implements OnInit {
       this.users = this.users.filter(x=> x != user);
     });  
   }
+
+  agentsCalls(){
+
+    if(this.userIndex.length == 1){
+      const userIndex = this.users.findIndex(x=>x.uid == this.userIndex[0])
+      this.remoteMediaContainer1.nativeElement.style.width = "100%";
+      this.remoteMediaContainer1.nativeElement.style.height = "100%";
+      this.remoteMediaContainer1.nativeElement.style.position = 'absolute';
+      this.remoteMediaContainer1.nativeElement.style.left = '0px';
+      this.users[userIndex].videoTrack.play(this.remoteMediaContainer1.nativeElement);
+    }
+    else if(this.userIndex.length == 2){
+      
+      const userIndex1 = this.users.findIndex(x=>x.uid == this.userIndex[0]);
+      const userIndex2 = this.users.findIndex(x=>x.uid == this.userIndex[1]);
+
+      if(userIndex1>=0 && !this.screenMode){
+        this.remoteMediaContainer1.nativeElement.style.width = "100%";
+        this.remoteMediaContainer1.nativeElement.style.height = "50%";
+        this.remoteMediaContainer1.nativeElement.style.position = 'absolute';
+        this.remoteMediaContainer1.nativeElement.style.left = '0px';
+        this.users[userIndex1].videoTrack.play(this.remoteMediaContainer1.nativeElement);
+      }
+      if(userIndex2>=0){
+        this.remoteScreenContainer.nativeElement.style.height = "50%";
+        this.remoteMediaContainer2.nativeElement.style.height = "50%";
+        this.remoteMediaContainer2.nativeElement.style.width = "100%";
+        this.remoteMediaContainer2.nativeElement.style.position = 'absolute';
+        this.remoteMediaContainer2.nativeElement.style.left = '0px';
+        this.remoteMediaContainer2.nativeElement.style.top = '50%';
+        this.users[userIndex2].videoTrack.play(this.remoteMediaContainer2.nativeElement);
+      }
+    }
+  }
+  
+
   screenShare(){
-    debugger
     const uid = parseInt(this.screenElement.uid);
     const user = this.users.findIndex(x=>x.uid == uid)
     const videoUid = parseInt(this.screenElement.videoUid);
@@ -266,6 +312,7 @@ export class AppComponent implements OnInit {
       this.users[user].videoTrack.play(this.remoteScreenContainer.nativeElement);
     }
   }
+
   fullScreen(){
     this.fullScreenMode  = true;
     
@@ -276,72 +323,10 @@ export class AppComponent implements OnInit {
     this.fullScreenContainer.nativeElement.style.position = 'absolute';
     this.users[user].videoTrack.play(this.fullScreenContainer.nativeElement);
   }
-  minScreen(){
-    this.fullScreenMode  = false;
-    this.screenShare();
-  }
 
   removeScreen(){
     this.fullScreenMode  = false;
     this.screenMode = false;
-  }
-  agentsCalls(){
-    console.log(this.userIndex)
-    debugger
-    var users = [];
-    if(this.screenElement){
-      const uid = parseInt(this.screenElement.uid);
-      users = this.users.filter(x=> x.uid != uid)
-    }
-    else{
-      users = this.users
-    }
-
-    if(this.userIndex.length == 1){
-      const userIndex = this.users.findIndex(x=>x.uid == this.userIndex[0])
-      this.remoteMediaContainer1.nativeElement.style.width = "100%";
-      this.remoteMediaContainer1.nativeElement.style.height = "100%";
-      this.remoteMediaContainer1.nativeElement.style.position = 'absolute';
-      this.remoteMediaContainer1.nativeElement.style.left = '0px';
-      this.users[userIndex].videoTrack.play(this.remoteMediaContainer1.nativeElement);
-    }
-    else if(this.userIndex.length == 2){
-
-      const userIndex1 = this.users.findIndex(x=>x.uid == this.userIndex[0]);
-      const userIndex2 = this.users.findIndex(x=>x.uid == this.userIndex[1]);
-
-      if(userIndex1>=0){
-        this.remoteMediaContainer1.nativeElement.style.width = "100%";
-        this.remoteMediaContainer1.nativeElement.style.height = "50%";
-        this.remoteMediaContainer1.nativeElement.style.position = 'absolute';
-        this.remoteMediaContainer1.nativeElement.style.left = '0px';
-        this.users[userIndex1].videoTrack.play(this.remoteMediaContainer1.nativeElement);
-      }
-      if(userIndex2>=0){
-        this.remoteMediaContainer2.nativeElement.style.height = "50%";
-        this.remoteMediaContainer2.nativeElement.style.width = "100%";
-        this.remoteMediaContainer2.nativeElement.style.position = 'absolute';
-        this.remoteMediaContainer2.nativeElement.style.left = '0px';
-        this.remoteMediaContainer2.nativeElement.style.top = '50%';
-        this.users[userIndex2].videoTrack.play(this.remoteMediaContainer2.nativeElement);
-      }
-    }
-  }
-  
-  
-  getAccessToken(){
-    this.chatButton = true;
-    this.loading = true;
-    this.showIcons = false;
-    this.showIcons
-    this.roomName = UUID.UUID();
-    this.options.uid = Math.floor((Math.random() * 1000) + 1);
-    this.options.channel = UUID.UUID();
-    this.twilioService.getAgoraToken(this.options.uid, this.options.channel).subscribe((data:any)=>{
-      this.options.token = data.tokenA;
-      this.initAgoraClient();
-      this.service.init(this.localParticipant)
-    })
   }
   async unMuteVideo(){
     this.localVideoTracks = await AgoraRTC.createCameraVideoTrack();
@@ -374,14 +359,6 @@ export class AppComponent implements OnInit {
     await this.agoraEngine.publish([ this.localAudioTracks]);
   }
 
-  callRequest(){
-    this.timer();
-    this.socketService.callRequestToAgent(this.payload);
-    this.loading = true;
-    this.showButton = false;
-    this.showIcons = false;
-  }
-
   sendVoice(){
     const payload ={
     "userSid" : this.userSid,
@@ -405,6 +382,7 @@ export class AppComponent implements OnInit {
       this.message = '';
     }
   }
+
   removeParticipant(){
     this.service.stop();
     this.audioMode = false;
@@ -417,11 +395,22 @@ export class AppComponent implements OnInit {
     this.userIndex = [];
     this.live = false;
     this.chatButton = false;
-    console.log(this.users,
-      this.messages,
-      this.userIndex)
     this.socketService.callDicconnected(this.userSid)
   }
+
+  close(){
+    this.chatButton = false;
+    this.service.stop();
+    this.agoraEngine.leave();
+    this.audioMode = false;
+    this.users = [];
+    this.messages = [];
+    this.userIndex = [];
+    this.live = false;
+    clearInterval(this.timerInterval);
+    this.socketService.callDicconnected(this.userSid)
+  }
+
   scrollToBottom(): void {
     setTimeout(()=>{
       try {
@@ -429,6 +418,7 @@ export class AppComponent implements OnInit {
       } catch(err) { }
     },2000)                 
   }
+
   timer() {
     // let minute = 1;
     let seconds: number = 60;
@@ -444,18 +434,7 @@ export class AppComponent implements OnInit {
       }
     }, 1000);
   }
-  close(){
-    this.chatButton = false;
-    this.service.stop();
-    this.agoraEngine.leave();
-    this.audioMode = false;
-    this.users = [];
-    this.messages = [];
-    this.userIndex = [];
-    this.live = false;
-    clearInterval(this.timerInterval);
-    this.socketService.callDicconnected(this.userSid)
-  }
+
   makeid() {
     let result = '';
     const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
