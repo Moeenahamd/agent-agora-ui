@@ -296,6 +296,7 @@ export class AppComponent implements OnInit {
       this.remoteScreenContainer.nativeElement.style.position = 'absolute';
       this.remoteScreenContainer.nativeElement.style.top = '0%';
       this.users[user].videoTrack.play(this.remoteScreenContainer.nativeElement);
+      this.remoteMediaContainer1.nativeElement.style.visibility = "hidden"
     }
     else if(screenIndex == 0 && this.userIndex.length == 2){
       this.remoteScreenContainer.nativeElement.style.width = "100%";
@@ -303,6 +304,7 @@ export class AppComponent implements OnInit {
       this.remoteScreenContainer.nativeElement.style.position = 'absolute';
       this.remoteScreenContainer.nativeElement.style.top = '0%';
       this.users[user].videoTrack.play(this.remoteScreenContainer.nativeElement);
+      this.remoteMediaContainer1.nativeElement.style.visibility = "hidden"
     }
     else{
       this.remoteScreenContainer.nativeElement.style.width = "100%";
@@ -310,6 +312,7 @@ export class AppComponent implements OnInit {
       this.remoteScreenContainer.nativeElement.style.position = 'absolute';
       this.remoteScreenContainer.nativeElement.style.top = '50%';
       this.users[user].videoTrack.play(this.remoteScreenContainer.nativeElement);
+      this.remoteMediaContainer2.nativeElement.style.visibility = "hidden"
     }
   }
 
