@@ -253,7 +253,7 @@ export class AppComponent implements OnInit {
   }
 
   agentsCalls(){
-
+    console.log(this.userIndex.length)
     if(this.userIndex.length == 1){
       const userIndex = this.users.findIndex(x=>x.uid == this.userIndex[0])
       this.remoteMediaContainer1.nativeElement.style.width = "100%";
@@ -267,13 +267,14 @@ export class AppComponent implements OnInit {
       
       const userIndex1 = this.users.findIndex(x=>x.uid == this.userIndex[0]);
       const userIndex2 = this.users.findIndex(x=>x.uid == this.userIndex[1]);
-
+      console.log(userIndex1,userIndex2)
       if(userIndex1>=0 && !this.screenMode){
         this.remoteMediaContainer1.nativeElement.style.width = "100%";
         this.remoteMediaContainer1.nativeElement.style.height = "50%";
         this.remoteMediaContainer1.nativeElement.style.position = 'absolute';
         this.remoteMediaContainer1.nativeElement.style.left = '0px';
         this.users[userIndex1].videoTrack.play(this.remoteMediaContainer1.nativeElement);
+        this.remoteMediaContainer1.nativeElement.style.visibility = "visible"
       }
       if(userIndex2>=0){
         this.remoteScreenContainer.nativeElement.style.height = "50%";
@@ -283,6 +284,7 @@ export class AppComponent implements OnInit {
         this.remoteMediaContainer2.nativeElement.style.left = '0px';
         this.remoteMediaContainer2.nativeElement.style.top = '50%';
         this.users[userIndex2].videoTrack.play(this.remoteMediaContainer2.nativeElement);
+        this.remoteMediaContainer2.nativeElement.style.visibility = "visible"
       }
     }
   }
