@@ -140,6 +140,7 @@ export class AppComponent implements OnInit {
       {
         this.visibleCheck = false;
         this.screenMode = false;
+        this.agentsCalls()
       }
     });
 
@@ -193,6 +194,7 @@ export class AppComponent implements OnInit {
         this.agentsCalls();
         this.toastr.success('Call disconnected or agent leaved')
         if(this.users.length == 0 && this.userIndex.length == 0){
+          console.log('Phadda is here')
           this.removeParticipant();
         }
       }
@@ -217,7 +219,7 @@ export class AppComponent implements OnInit {
     this.agoraEngine.on("user-published", async (user:any, mediaType:any) =>
     {
       
-      console.log("Publich Called",user);
+      console.log("Publich Called",user, mediaType);
       await this.agoraEngine.subscribe(user, mediaType);
       if (mediaType === "video") {
         if(user._videoTrack){
@@ -244,9 +246,10 @@ export class AppComponent implements OnInit {
     });
     this.agoraEngine.on("user-unpublished", async (user:any, mediaType:any) =>
     {
-      console.log('UnPublich Called')
+      console.log('UnPublich Called', user, mediaType)
       this.users = this.users.filter(x=> x != user);
-    });  
+    }); 
+    
   }
 
   agentsCalls(){
@@ -258,6 +261,7 @@ export class AppComponent implements OnInit {
       this.remoteMediaContainer1.nativeElement.style.position = 'absolute';
       this.remoteMediaContainer1.nativeElement.style.left = '0px';
       this.users[userIndex].videoTrack.play(this.remoteMediaContainer1.nativeElement);
+      this.remoteMediaContainer1.nativeElement.style.visibility = "visible"
     }
     else if(this.userIndex.length == 2){
       
