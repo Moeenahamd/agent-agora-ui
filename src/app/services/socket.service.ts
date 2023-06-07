@@ -1,5 +1,4 @@
 import { Injectable } from '@angular/core';
-import { Socket } from 'ngx-socket-io';
 import { io } from "socket.io-client";
 
 import { BehaviorSubject, Observable } from 'rxjs';
@@ -100,6 +99,10 @@ export class SocketService {
 
   callRequestToAgent(obj:any){
     this.socket.emit('CallRequest',obj);
+  }
+
+  callCancelled(obj:any){
+    this.socket.emit('CallCancelled',obj);
   }
 
   userCallAccept(obj:any){

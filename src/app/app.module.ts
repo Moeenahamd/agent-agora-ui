@@ -7,9 +7,6 @@ import { NgxLoadingModule } from "ngx-loading";
 import { ToastContainerModule, ToastrModule } from 'ngx-toastr';
 import { HttpClientModule } from '@angular/common/http';
 import { FormsModule } from '@angular/forms';
-import { SocketIoModule, SocketIoConfig } from 'ngx-socket-io';
-
-const config: SocketIoConfig = { url: 'https://viewpro.com', options: {} };
 @NgModule({
   declarations: [
     AppComponent

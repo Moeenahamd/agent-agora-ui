@@ -20,6 +20,7 @@ export class AppComponent implements OnInit {
   
   @ViewChild('scrollBottom') scrollBottom: any;
   @ViewChild(ToastContainerDirective, { static: true })
+  callPicked = 0;
   toastContainer: any;
   agoraClient:any;
   screenMode= false;
@@ -70,7 +71,6 @@ export class AppComponent implements OnInit {
   userName:any;
   roomName:any;
   message:any;
-  agentCount =0;
   users:any[] =[];
   showButton = false;
   userIndex:any[] = []
@@ -100,7 +100,6 @@ export class AppComponent implements OnInit {
     this.chatButton = true;
     this.loading = true;
     this.showIcons = false;
-    this.showIcons
     this.roomName = UUID.UUID();
     this.options.uid = Math.floor((Math.random() * 1000) + 1);
     this.options.channel = UUID.UUID();
@@ -120,6 +119,7 @@ export class AppComponent implements OnInit {
   }
 
   async initSocket(){
+    this.callPicked = 0;
     await this.socketService.initSocket();
     await this.socketService.getSocketConnection().subscribe((doc:any) => {
       if(doc && doc != this.localParticipant){
@@ -149,8 +149,7 @@ export class AppComponent implements OnInit {
         this.loading = false;
         this.showIcons = true;
         this.live =true;
-        this.agentName = doc.agentName
-        this.userSid = doc.userUid;
+        this.showButton = false;
         
         console.log("Agent Added", this.userIndex);
         if(this.userIndex.indexOf(doc.videoUid) === -1) {
@@ -160,7 +159,12 @@ export class AppComponent implements OnInit {
           this.avatar = doc.avatar;
         }
         this.agentImage = doc.image;
-        this.socketService.userCallAccept(doc);
+        if(this.callPicked == 0){
+          this.socketService.userCallAccept(doc);
+          this.agentName = doc.agentName
+          this.userSid = doc.userUid;
+        }
+        this.callPicked ++
       }
     });
 
@@ -193,8 +197,7 @@ export class AppComponent implements OnInit {
         this.userIndex = this.userIndex.filter(x=> x != doc.uid);
         this.agentsCalls();
         this.toastr.success('Call disconnected or agent leaved')
-        if(this.users.length == 0 && this.userIndex.length == 0){
-          console.log('Phadda is here')
+        if(this.userIndex.length == 0){
           this.removeParticipant();
         }
       }
@@ -247,7 +250,7 @@ export class AppComponent implements OnInit {
     this.agoraEngine.on("user-unpublished", async (user:any, mediaType:any) =>
     {
       console.log('UnPublich Called', user, mediaType)
-      this.users = this.users.filter(x=> x != user);
+      //this.users = this.users.filter(x=> x != user);
     }); 
     
   }
@@ -409,6 +412,7 @@ export class AppComponent implements OnInit {
     this.userIndex = [];
     this.live = false;
     this.chatButton = false;
+    this.showButton = false;
     this.socketService.callDicconnected(this.userSid)
   }
 
@@ -416,13 +420,14 @@ export class AppComponent implements OnInit {
     this.chatButton = false;
     this.service.stop();
     this.agoraEngine.leave();
+    this.showButton = false;
     this.audioMode = false;
     this.users = [];
     this.messages = [];
     this.userIndex = [];
     this.live = false;
     clearInterval(this.timerInterval);
-    this.socketService.callDicconnected(this.userSid)
+    this.socketService.callCancelled(this.userSid)
   }
 
   scrollToBottom(): void {
