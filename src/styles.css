@@ -1,6 +1,7 @@
 /* You can add global styles to this file, and also import other style files */
 body {
-    background-color: black
+    
+  background-color: darkgray;
 }
 
 .agora_video_player{
@@ -153,16 +154,16 @@ to{ bottom:0; opacity:1 }
 .loader-content{    
     position: absolute;
     width: 100%;
-    background-color: darkgray;
+    background-color: black;
     background-size: contain;
     background-repeat: no-repeat;
     height: 100%;
 }
 .loading {
     margin: 20px;
-    width: 70px;
-    margin:50% auto 10%;
-    height: 70px;
+    width: 60px;
+    margin:60% auto 5%;
+    height: 60px;
     -webkit-animation-name: spin;
     -webkit-animation-duration: 2000ms;
     -webkit-animation-iteration-count: infinite;

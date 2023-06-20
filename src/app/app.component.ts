@@ -151,7 +151,7 @@ export class AppComponent implements OnInit {
         this.live =true;
         this.showButton = false;
         
-        console.log("Agent Added", this.userIndex);
+        console.log("Agent Added called", this.userIndex);
         if(this.userIndex.indexOf(doc.videoUid) === -1) {
           this.userIndex.push(doc.videoUid);
         }
@@ -171,6 +171,7 @@ export class AppComponent implements OnInit {
     this.socketService.getAgentTransferCallEstablished().subscribe((doc:any) => {
       if(doc)
       {
+        console.log('getAgentTransferCallEstablished called',doc)
         this.userIndex.push(doc.videoUid);
       }
     })
@@ -193,8 +194,8 @@ export class AppComponent implements OnInit {
 
     this.socketService.getAgentDisconnected().subscribe((doc:any) => {
       if(doc){
-        console.log(doc)
         this.userIndex = this.userIndex.filter(x=> x != doc.uid);
+        console.log(doc,this.userIndex)
         this.agentsCalls();
         this.toastr.success('Call disconnected or agent leaved')
         if(this.userIndex.length == 0){
@@ -250,7 +251,7 @@ export class AppComponent implements OnInit {
     this.agoraEngine.on("user-unpublished", async (user:any, mediaType:any) =>
     {
       console.log('UnPublich Called', user, mediaType)
-      //this.users = this.users.filter(x=> x != user);
+      this.users = this.users.filter(x=> x != user);
     }); 
     
   }
@@ -402,10 +403,10 @@ export class AppComponent implements OnInit {
 
   removeParticipant(){
     this.service.stop();
-    this.audioMode = false;
     if(this.audioMode){
       this.localAudioTracks.close();
     }
+    this.audioMode = false;
     this.agoraEngine.leave();
     this.users = [];
     this.messages = [];

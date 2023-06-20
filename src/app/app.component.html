@@ -13,13 +13,9 @@
     <div *ngIf="loading" class="loader-content">
       <i style="font-size:32px;color:white;position: absolute; top:0px;right:10px; cursor: pointer;" (click)="close()" class="bi bi-x"></i>
       <div class="loading">
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 4335 4335" width="70" height="70">
-          <path fill="#008DD2" d="M3346 1077c41,0 75,34 75,75 0,41 -34,75 -75,75 -41,0 -75,-34 -75,-75 0,-41 34,-75 75,-75zm-1198 -824c193,0 349,156 349,349 0,193 -156,349 -349,349 -193,0 -349,-156 -349,-349 0,-193 156,-349 349,-349zm-1116 546c151,0 274,123 274,274 0,151 -123,274 -274,274 -151,0 -274,-123 -274,-274 0,-151 123,-274 274,-274zm-500 1189c134,0 243,109 243,243 0,134 -109,243 -243,243 -134,0 -243,-109 -243,-243 0,-134 109,-243 243,-243zm500 1223c121,0 218,98 218,218 0,121 -98,218 -218,218 -121,0 -218,-98 -218,-218 0,-121 98,-218 218,-218zm1116 434c110,0 200,89 200,200 0,110 -89,200 -200,200 -110,0 -200,-89 -200,-200 0,-110 89,-200 200,-200zm1145 -434c81,0 147,66 147,147 0,81 -66,147 -147,147 -81,0 -147,-66 -147,-147 0,-81 66,-147 147,-147zm459 -1098c65,0 119,53 119,119 0,65 -53,119 -119,119 -65,0 -119,-53 -119,-119 0,-65 53,-119 119,-119z"
-          />
-        </svg>
+        <img src="../assets/loading-white.gif" alt="Computer man" style="width:60px;height:60px;">
       </div>
-      
-      <div style="color:white; padding:0px 60px; font-size: 20px;">Welcome allow me to connect you to the next available agent</div>
+      <div style="color:white; text-align: center; font-size: 25px;">Checking Connection</div>
     </div>
     <div *ngIf="showButton">
       <i style="font-size:32px;color:white;position: absolute; top:0px;right:10px; cursor: pointer; background-color: #a4a4a485;" (click)="close()" class="bi bi-x"></i>
@@ -37,8 +33,9 @@
         
 			<div  style="z-index: 4;" *ngIf="!fullScreenMode">
         <div style="position: relative;" class="top-bar" *ngIf="!loading && showIcons">
-          <i style="font-size:30px;color:white;position: absolute; top:5px;left:17px;cursor: pointer; background-color: #a4a4a485;" class="bi bi-person-circle"></i>
-          <span style="font-size:18px;color:white;position: absolute; top:10px;left:58px;cursor: pointer; background-color: #a4a4a485;">{{agentName}} <span *ngIf="live" style="color: white; position: absolute; padding: 2px 10px; border-radius: 5px; right: -240px; background-color: rgb(246,23,114);">LIVE</span></span>
+          <img [src]="avatar" style="color:white;position: absolute; top:5px;left:17px;cursor: pointer; background-color: #a4a4a485;" width="40" height="40">
+          <span style="font-size:18px;color:white;position: absolute; top:10px;left:58px;cursor: pointer; background-color: #a4a4a485;">{{agentName}} </span>
+          <span *ngIf="live" style="color: white; position: absolute; padding: 2px 10px; border-radius: 5px; top: 10px;right: 80px; background-color: rgb(246,23,114);">LIVE</span>
           <i style="font-size:32px;color:white;position: absolute; top:0px;right:11px; cursor: pointer; background-color: #a4a4a485;" (click)="removeParticipant()" class="bi bi-x"></i>
           <i *ngIf="!audioMode" style="font-size:24px;color:white;position: absolute; top:55px;right:15px;cursor: pointer; background-color: #a4a4a485;"(click)="unMuteAudio()" class="material-icons">mic_off</i>
           <i *ngIf="audioMode" style="font-size:24px;color:white;position: absolute; top:55px;right:15px;cursor: pointer; background-color: #a4a4a485;" (click)="muteAudio()" class="material-icons">mic_none</i>

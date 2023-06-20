@@ -43,7 +43,7 @@ export class SocketService {
   };
 
   getAgentTransferCallEstablished = () => {
-    this.socket.on('AgentTransferCallEstablished', (message:any) =>{
+    this.socket.on('agentTransferCallEstablished', (message:any) =>{
       console.log(message)
       this.agentTransferCallEstablished.next(message);
     });
