@@ -194,8 +194,9 @@ export class AppComponent implements OnInit {
 
     this.socketService.getAgentDisconnected().subscribe((doc:any) => {
       if(doc){
-        this.userIndex = this.userIndex.filter(x=> x != doc.uid);
-        console.log(doc,this.userIndex)
+        console.log('called',this.userIndex)
+        this.userIndex = this.userIndex.filter(x=> x != parseInt(doc.uid));
+        console.log('called',doc,this.userIndex)
         this.agentsCalls();
         this.toastr.success('Call disconnected or agent leaved')
         if(this.userIndex.length == 0){
@@ -251,7 +252,7 @@ export class AppComponent implements OnInit {
     this.agoraEngine.on("user-unpublished", async (user:any, mediaType:any) =>
     {
       console.log('UnPublich Called', user, mediaType)
-      this.users = this.users.filter(x=> x != user);
+      //this.users = this.users.filter(x=> x != user);
     }); 
     
   }
