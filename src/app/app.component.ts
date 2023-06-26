@@ -368,14 +368,15 @@ export class AppComponent implements OnInit {
   async muteAudio(){
     this.service.stop();
     this.audioMode = false;
-    this.localAudioTracks.close();
-    await this.agoraEngine.unpublish([this.localAudioTracks]);
+    this.localAudioTracks.stop();
   }
   async unMuteAudio(){
     this.service.start();
     this.audioMode = true;
-    this.localAudioTracks = await AgoraRTC.createMicrophoneAudioTrack(); 
-    await this.agoraEngine.publish([ this.localAudioTracks]);
+    if(!this.localAudioTracks)
+      this.localAudioTracks = await AgoraRTC.createMicrophoneAudioTrack();
+    else
+      this.localAudioTracks.play();
   }
 
   sendVoice(){
@@ -402,10 +403,12 @@ export class AppComponent implements OnInit {
     }
   }
 
-  removeParticipant(){
+  async removeParticipant(){
     this.service.stop();
-    if(this.audioMode){
+    if(this.localAudioTracks){
       this.localAudioTracks.close();
+      await this.agoraEngine.publish([ this.localAudioTracks]);
+      this.localAudioTracks = null;
     }
     this.audioMode = false;
     this.agoraEngine.leave();
