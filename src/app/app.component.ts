@@ -366,18 +366,46 @@ export class AppComponent implements OnInit {
     this.videoMode = false;
   }
   async muteAudio(){
+    debugger;
     this.service.stop();
     this.audioMode = false;
-    this.localAudioTracks.stop();
+    this.localAudioTracks.setMuted(true)
   }
-  async unMuteAudio(){
+  async unMuteAudio() {
+    debugger;
     this.service.start();
     this.audioMode = true;
-    if(!this.localAudioTracks)
-      this.localAudioTracks = await AgoraRTC.createMicrophoneAudioTrack();
-    else
-      this.localAudioTracks.play();
+
+    const config = {
+      audioProfile: 'audio-processing'
+    };
+    
+    // Set the audio profile configuration
+    this.agoraEngine.setClientRole(config);
+    
+    if (!this.localAudioTracks) {
+      try {
+        this.localAudioTracks = await AgoraRTC.createMicrophoneAudioTrack({
+          AEC: false,
+          AGC: false,
+          ANS: false
+        });
+        this.agoraEngine.publish(this.localAudioTracks, () => {
+          console.log("Audio track published successfully");
+        });
+      } catch (error) {
+        console.error("Failed to create and publish the local audio track:", error);
+      }
+    } else {
+      try {
+        await this.localAudioTracks.setMuted(false);
+        console.log("Local audio track unmuted.");
+      } catch (error) {
+        console.error("Failed to unmute the local audio track:", error);
+      }
+    }
   }
+  
 
   sendVoice(){
     const payload ={
