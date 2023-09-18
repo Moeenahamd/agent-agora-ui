@@ -130,6 +130,7 @@ export class AppComponent implements OnInit {
     this.socketService.getStartScreenShare().subscribe((doc:any) => {
       if(doc){
         this.screenMode = true;
+        console.log('called')
         this.visibleCheck = true;
         this.screenElement = doc;
       }
@@ -140,6 +141,8 @@ export class AppComponent implements OnInit {
       {
         this.visibleCheck = false;
         this.screenMode = false;
+        this.fullScreenMode  = false;
+        console.log('called')
         this.agentsCalls()
       }
     });
@@ -289,7 +292,7 @@ export class AppComponent implements OnInit {
         this.remoteMediaContainer2.nativeElement.style.left = '0px';
         this.remoteMediaContainer2.nativeElement.style.top = '50%';
         this.users[userIndex2].videoTrack.play(this.remoteMediaContainer2.nativeElement);
-        this.remoteMediaContainer2.nativeElement.style.visibility = "visible"
+        this.remoteMediaContainer2.nativeElement.style.visibility = "visible";
       }
     }
   }
@@ -325,16 +328,18 @@ export class AppComponent implements OnInit {
       this.users[user].videoTrack.play(this.remoteScreenContainer.nativeElement);
       this.remoteMediaContainer2.nativeElement.style.visibility = "hidden"
     }
+    this.fullScreen();
   }
 
   fullScreen(){
     this.fullScreenMode  = true;
-    
     const uid = parseInt(this.screenElement.uid);
     const user = this.users.findIndex(x=>x.uid == uid)
     this.fullScreenContainer.nativeElement.style.width = "100%";
     this.fullScreenContainer.nativeElement.style.height = "100%";
     this.fullScreenContainer.nativeElement.style.position = 'absolute';
+    
+    console.log(uid,user,this.users)
     this.users[user].videoTrack.play(this.fullScreenContainer.nativeElement);
   }
 
