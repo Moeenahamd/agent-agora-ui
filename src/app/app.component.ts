@@ -175,7 +175,9 @@ export class AppComponent implements OnInit {
       if(doc)
       {
         console.log('getAgentTransferCallEstablished called',doc)
-        this.userIndex.push(doc.videoUid);
+        if(!this.userIndex.find(doc.videoUid)){
+          this.userIndex.push(doc.videoUid);
+        }
       }
     })
 
@@ -261,7 +263,7 @@ export class AppComponent implements OnInit {
   }
 
   agentsCalls(){
-    console.log(this.userIndex.length)
+    console.log('264',this.userIndex.length)
     if(this.userIndex.length == 1){
       const userIndex = this.users.findIndex(x=>x.uid == this.userIndex[0])
       this.remoteMediaContainer1.nativeElement.style.width = "100%";
